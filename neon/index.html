@@ -1,15 +1,14 @@
 <!DOCTYPE html>
 <html lang="vi">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script src="../data.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<title>Neon Bento Dashboard</title>
+<title>Neon Bento — Tồn Kho</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Inter',sans-serif;background:#050505;color:#fff;min-height:100vh}
-.bento-grid{display:grid;grid-template-columns:repeat(4,1fr);grid-auto-rows:minmax(150px,auto);gap:16px;padding:24px;max-width:1200px;margin:0 auto}
+body{font-family:'Inter',sans-serif;background:#050505;color:#fff;min-height:100vh;padding:24px}
+.bento-grid{display:grid;grid-template-columns:repeat(4,1fr);grid-auto-rows:minmax(150px,auto);gap:16px;max-width:1200px;margin:0 auto}
 .bento-item{background:rgba(20,20,30,0.8);border:1px solid;border-radius:20px;padding:24px;position:relative;overflow:hidden}
 .bento-item::before{content:'';position:absolute;top:-2px;left:-2px;right:-2px;bottom:-2px;border-radius:20px;z-index:-1;opacity:0.6}
 .bento-item.cyan{border-color:#00ffff;box-shadow:0 0 20px rgba(0,255,255,0.2)}.bento-item.cyan::before{background:linear-gradient(135deg,#00ffff20,#00ffff05)}
@@ -19,25 +18,26 @@ body{font-family:'Inter',sans-serif;background:#050505;color:#fff;min-height:100
 .bento-item.span-2{grid-column:span 2}.bento-item.span-2-row{grid-row:span 2}
 .val{font-size:36px;font-weight:700}.label{font-size:12px;text-transform:uppercase;letter-spacing:1px;opacity:0.7;margin-bottom:8px}
 .neon-text{text-shadow:0 0 10px currentColor}
-.chart-wrapper{height:200px}
 h1{text-align:center;padding:24px 0;font-size:24px;text-shadow:0 0 20px #ff00ff}
+.chart-wrapper{height:200px}
+.data-val{color:#00ffff;font-size:32px;font-weight:700}
 @media(max-width:768px){.bento-grid{grid-template-columns:repeat(2,1fr)}.bento-item.span-2{grid-column:span 2}}
-</style>
-</head>
-<body>
-<h1>⚡ Neon Bento Grid</h1>
+</style></head><body>
+<h1>⚡ Neon Bento — Tồn Kho</h1>
 <div class="bento-grid">
-<div class="bento-item cyan span-2"><div class="label">Bitcoin</div><div class="val neon-text" style="color:#00ffff">$67,420</div><canvas id="c1" height="100"></canvas></div>
-<div class="bento-item magenta"><div class="label">Ethereum</div><div class="val neon-text" style="color:#ff00ff">$3,890</div></div>
-<div class="bento-item green span-2-row"><div class="label">Portfolio</div><div class="val neon-text" style="color:#00ff41">+24.8%</div><div class="chart-wrapper"><canvas id="c2"></canvas></div></div>
-<div class="bento-item yellow"><div class="label">Solana</div><div class="val neon-text" style="color:#ffff00">$142.5</div></div>
-<div class="bento-item cyan"><div class="label">Active</div><div class="val neon-text" style="color:#00ffff">1,204</div></div>
-<div class="bento-item magenta span-2"><div class="label">Market Cap</div><div class="val neon-text" style="color:#ff00ff">$2.1T</div><canvas id="c3" height="80"></canvas></div>
+<div class="bento-item cyan span-2"><div class="label">Tổng giá trị</div><div class="data-val neon-text" id="totalVal">--</div><canvas id="c1" height="100"></canvas></div>
+<div class="bento-item magenta"><div class="label">Tổng SP</div><div class="data-val neon-text" id="totalProd">--</div></div>
+<div class="bento-item green span-2-row"><div class="label">Phân bổ</div><div class="chart-wrapper"><canvas id="c2"></canvas></div></div>
+<div class="bento-item yellow"><div class="label">Tỷ lệ bán</div><div class="data-val neon-text" id="sellRate">--</div></div>
+<div class="bento-item cyan"><div class="label">SP Vướng</div><div class="data-val neon-text" id="stuck">--</div></div>
+<div class="bento-item magenta span-2"><div class="label">Top dự án</div><div id="topList" style="font-size:13px;color:#ff00ff"></div></div>
 </div>
 <script>
-new Chart(document.getElementById('c1'),{type:'line',data:{labels:['M','T','W','T','F','S','S'],datasets:[{data:[65,68,72,70,75,78,74],borderColor:'#00ffff',tension:0.4,pointRadius:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{display:false},y:{display:false}}}});
-new Chart(document.getElementById('c2'),{type:'doughnut',data:{labels:['BTC','ETH','SOL','Others'],datasets:[{data:[45,30,15,10],backgroundColor:['#00ffff','#ff00ff','#00ff41','#ffff00']}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#fff'}}}}});
-new Chart(document.getElementById('c3'),{type:'bar',data:{labels:['Q1','Q2','Q3','Q4'],datasets:[{data:[1.2,1.5,1.8,2.1],backgroundColor:'#ff00ff'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{color:'#fff'}},y:{ticks:{color:'#fff'}}}}});
-</script>
-</body>
-</html>
+document.getElementById('totalVal').textContent=fmtVND(inventoryData.total.value);
+document.getElementById('totalProd').textContent=fmtNum(inventoryData.total.products);
+document.getElementById('sellRate').textContent=inventoryData.total.sellRate+'%';
+document.getElementById('stuck').textContent=inventoryData.total.stuck;
+document.getElementById('topList').innerHTML=inventoryData.topProjects.slice(0,5).map(p=>\`${p.name}: ${fmtVND(p.value)}\`).join('<br>');
+new Chart(document.getElementById('c1'),{type:'line',data:{labels:inventoryData.topProjects.slice(0,7).map(p=>p.name),datasets:[{data:inventoryData.topProjects.slice(0,7).map(p=>p.value),borderColor:'#00ffff',tension:0.4,pointRadius:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{display:false},y:{display:false}}}});
+new Chart(document.getElementById('c2'),{type:'doughnut',data:{labels:inventoryData.regions.map(r=>r.name),datasets:[{data:inventoryData.regions.map(r=>r.value),backgroundColor:['#00ffff','#ff00ff','#ffff00']}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#fff'}}}}});
+</script></body></html>

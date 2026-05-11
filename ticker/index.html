@@ -1,57 +1,38 @@
 <!DOCTYPE html>
 <html lang="vi">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script src="../data.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<title>Financial Ticker Pro</title>
+<title>Ticker Pro — Tồn Kho</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'Inter',sans-serif;background:#0f172a;color:#e2e8f0;min-height:100vh}
 .ticker{background:#1e293b;overflow:hidden;padding:12px 0;border-bottom:1px solid #334155}
 .ticker-inner{display:flex;animation:ticker 20s linear infinite;white-space:nowrap}
-.ticker-item{padding:0 32px;font-size:14px}
-.ticker-item .up{color:#10B981}.ticker-item .down{color:#EF4444}
+.ticker-item{padding:0 32px;font-size:14px}.ticker-item .up{color:#10B981}.ticker-item .down{color:#EF4444}
 @keyframes ticker{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
 .container{max-width:1200px;margin:0 auto;padding:24px}
 .kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin:24px 0}
 .kpi-card{background:#1e293b;border:1px solid #334155;border-radius:12px;padding:20px;text-align:center}
-.kpi-value{font-size:32px;font-weight:700}.kpi-value.up{color:#10B981}.kpi-value.down{color:#EF4444}
+.kpi-value{font-size:32px;font-weight:700;color:#3B82F6}
 .kpi-label{font-size:12px;color:#94a3b8;text-transform:uppercase;margin-bottom:8px}
-.sparkline{display:flex;align-items:flex-end;height:40px;gap:2px;margin-top:8px}
-.spark-bar{flex:1;background:#3B82F6;border-radius:2px;min-height:4px}
 table{width:100%;border-collapse:collapse;margin-top:24px;font-size:14px}
-th{text-align:left;padding:12px;color:#94a3b8;border-bottom:1px solid #334155;font-size:12px;text-transform:uppercase}
+th{padding:12px;color:#94a3b8;border-bottom:1px solid #334155;font-size:12px;text-transform:uppercase;text-align:left}
 td{padding:12px;border-bottom:1px solid #1e293b}
 tr:hover td{background:#1e293b}
-.inline-spark{display:flex;align-items:flex-end;height:24px;gap:1px;width:80px}
-.inline-spark div{flex:1;background:#10B981;border-radius:1px;min-height:2px}
-.counter{animation:countUp 2s ease-out}
-@keyframes countUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
-</style>
-</head>
-<body>
+.inline-spark{display:flex;align-items:flex-end;height:24px;gap:1px;width:80px}.inline-spark div{flex:1;background:#10B981;border-radius:1px;min-height:2px}
+</style></head><body>
 <div class="ticker"><div class="ticker-inner" id="ticker"></div></div>
 <div class="container">
-<div class="kpi-grid">
-<div class="kpi-card"><div class="kpi-label">S&P 500</div><div class="kpi-value up counter">4,215.30</div></div>
-<div class="kpi-card"><div class="kpi-label">NASDAQ</div><div class="kpi-value up counter">13,890.42</div></div>
-<div class="kpi-card"><div class="kpi-label">DOW</div><div class="kpi-value down counter">33,890.15</div></div>
-<div class="kpi-card"><div class="kpi-label">VIX</div><div class="kpi-value up counter">18.45</div></div>
-</div>
-<table>
-<thead><tr><th>Stock</th><th>Price</th><th>Change</th><th>7D Trend</th></tr></thead>
-<tbody>
-<tr><td>AAPL</td><td>$178.50</td><td class="up">+2.3%</td><td><div class="inline-spark"><div style="height:40%"></div><div style="height:60%"></div><div style="height:55%"></div><div style="height:80%"></div><div style="height:70%"></div><div style="height:90%"></div><div style="height:100%"></div></div></td></tr>
-<tr><td>MSFT</td><td>$332.40</td><td class="up">+1.8%</td><td><div class="inline-spark"><div style="height:30%"></div><div style="height:50%"></div><div style="height:45%"></div><div style="height:70%"></div><div style="height:60%"></div><div style="height:85%"></div><div style="height:100%"></div></div></td></tr>
-<tr><td>TSLA</td><td>$235.60</td><td class="down">-3.1%</td><td><div class="inline-spark"><div style="height:80%"></div><div style="height:70%"></div><div style="height:60%"></div><div style="height:50%"></div><div style="height:40%"></div><div style="height:30%"></div><div style="height:20%"></div></div></td></tr>
-<tr><td>NVDA</td><td>$465.20</td><td class="up">+4.5%</td><td><div class="inline-spark"><div style="height:20%"></div><div style="height:40%"></div><div style="height:35%"></div><div style="height:60%"></div><div style="height:55%"></div><div style="height:80%"></div><div style="height:100%"></div></div></td></tr>
-</tbody>
-</table>
+<div class="kpi-grid" id="kpi"></div>
+<table><thead><tr><th>Dự án</th><th>Khu vực</th><th>Giá trị (tỷ)</th><th>Trend</th></tr></thead><tbody id="table"></tbody></table>
 </div>
 <script>
-const stocks=[{s:'AAPL',p:178.50,c:'+2.3%'},{s:'MSFT',p:332.40,c:'+1.8%'},{s:'GOOGL',p:138.20,c:'-0.5%'},{s:'AMZN',p:145.80,c:'+1.2%'},{s:'TSLA',p:235.60,c:'-3.1%'},{s:'NVDA',p:465.20,c:'+4.5%'}],t=document.getElementById('ticker');let html='';stocks.forEach(st=>{html+=\`<span class="ticker-item"><b>\${st.s}</b> $\${st.p} <span class="\${st.c.includes('+')?'up':'down'}">\${st.c}</span></span>\`;});t.innerHTML=html+html;
-</script>
-</body>
-</html>
+document.getElementById('kpi').innerHTML=\`<div class="kpi-card"><div class="kpi-label">Tổng giá trị</div><div class="kpi-value">\${fmtVND(inventoryData.total.value)}</div></div>
+<div class="kpi-card"><div class="kpi-label">Tổng SP</div><div class="kpi-value">\${fmtNum(inventoryData.total.products)}</div></div>
+<div class="kpi-card"><div class="kpi-label">Đã bán</div><div class="kpi-value">\${inventoryData.total.sellRate}%</div></div>
+<div class="kpi-card"><div class="kpi-label">Vướng mắc</div><div class="kpi-value">\${inventoryData.total.stuck}</div></div>\`;
+const t=document.getElementById('ticker');let th='';inventoryData.topProjects.forEach(p=>{th+=\`<span class="ticker-item"><b>\${p.name}</b> \${fmtVND(p.value)} <span class="\${p.percentage>5?'up':'down'}">\${p.percentage}%</span></span>\`;});t.innerHTML=th+th;
+document.getElementById('table').innerHTML=inventoryData.topProjects.map((p,idx)=>\`<tr><td>\${p.name}</td><td>\${p.area}</td><td>\${fmtVND(p.value)}</td><td><div class="inline-spark">\${Array(7).fill(0).map((_,i)=>(\`<div style="height:\${20+Math.random()*80}%"></div>\`)).join('')}</div></td></tr>\`).join('');
+</script></body></html>

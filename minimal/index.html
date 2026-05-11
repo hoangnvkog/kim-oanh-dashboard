@@ -1,20 +1,13 @@
 <!DOCTYPE html>
 <html lang="vi">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script src="../data.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<title>Minimalist Spotlight</title>
+<title>Minimalist — Tồn Kho</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'Inter',sans-serif;background:#fff;color:#1a1a1a;min-height:100vh}
-.spotlight-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.9);display:none;flex-direction:column;align-items:center;justify-content:center;z-index:1000;padding:24px}
-.spotlight-overlay.active{display:flex}
-.spotlight-input{width:100%;max-width:600px;padding:16px 24px;border-radius:12px;border:none;font-size:18px;background:#222;color:#fff;outline:none;margin-bottom:16px}
-.spotlight-results{width:100%;max-width:600px;background:#fff;border-radius:12px;overflow:hidden}
-.spotlight-item{padding:16px 24px;border-bottom:1px solid #eee;cursor:pointer;font-size:14px}
-.spotlight-item:hover{background:#f5f5f5}
 .header{text-align:center;padding:80px 24px 40px}
 .header h1{font-size:48px;font-weight:700;margin-bottom:16px;letter-spacing:-1px}
 .header p{font-size:18px;color:#666;margin-bottom:32px}
@@ -23,28 +16,22 @@ body{font-family:'Inter',sans-serif;background:#fff;color:#1a1a1a;min-height:100
 .kpi-card:hover{transform:translateY(-4px)}
 .kpi-value{font-size:40px;font-weight:700;color:#1a1a1a;margin-bottom:8px}
 .kpi-label{font-size:13px;color:#888;text-transform:uppercase;letter-spacing:1px}
-.cmd-hint{position:fixed;bottom:24px;right:24px;background:#1a1a1a;color:#fff;padding:8px 16px;border-radius:8px;font-size:13px;cursor:pointer}
+table{width:100%;max-width:900px;margin:40px auto;border-collapse:collapse;font-size:14px}
+th{padding:16px;border-bottom:2px solid #1a1a1a;font-size:12px;text-transform:uppercase;text-align:left}
+td{padding:16px;border-bottom:1px solid #eee}
+tr:hover{background:#f9f9f9}
+.spotlight{position:fixed;bottom:24px;right:24px;background:#1a1a1a;color:#fff;padding:12px 24px;border-radius:12px;font-size:13px;cursor:pointer}
 @media(max-width:768px){.header h1{font-size:32px}}
-</style>
-</head>
-<body>
-<div class="spotlight-overlay" id="spotlight">
-<input type="text" class="spotlight-input" placeholder="Search anything..." id="searchInput" oninput="search(this.value)">
-<div class="spotlight-results" id="results"></div>
-</div>
-<div class="header">
-<h1>Minimal.</h1>
-<p>Less is more. Clean analytics for focused minds.</p>
-</div>
-<div class="kpi-grid">
-<div class="kpi-card"><div class="kpi-value">$2.4M</div><div class="kpi-label">Revenue</div></div>
-<div class="kpi-card"><div class="kpi-value">+12.5%</div><div class="kpi-label">Growth</div></div>
-<div class="kpi-card"><div class="kpi-value">3.2K</div><div class="kpi-label">Users</div></div>
-<div class="kpi-card"><div class="kpi-value">98%</div><div class="kpi-label">Uptime</div></div>
-</div>
-<div class="cmd-hint" onclick="toggleSpotlight()">⌘K Spotlight</div>
+</style></head><body>
+<div class="header"><h1>Tồn Kho</h1><p>Báo cáo 20 dự án • 6,485 sản phẩm</p></div>
+<div class="kpi-grid" id="kpi"></div>
+<table><thead><tr><th>Dự án</th><th>Khu vực</th><th>SP</th><th>Giá trị (tỷ)</th>%</th></tr></thead><tbody id="tbl"></tbody></table>
+<div class="spotlight" onclick="alert('Search: TAM PHƯỚC, CENTURY, RICHLAND...')">⌘K Spotlight</div>
 <script>
-const items=['Revenue Overview','User Analytics','Growth Reports','Settings','Export Data','Team Members','Billing'];function toggleSpotlight(){const s=document.getElementById('spotlight');s.classList.toggle('active');if(s.classList.contains('active')){document.getElementById('searchInput').focus()}}document.addEventListener('keydown',e=>{if(e.ctrlKey&&e.key==='k'){e.preventDefault();toggleSpotlight()}});function search(q){const r=document.getElementById('results');if(!q){r.innerHTML='';return}const filtered=items.filter(i=>i.toLowerCase().includes(q.toLowerCase()));r.innerHTML=filtered.map(i=>\`<div class="spotlight-item">\${i}</div>\`).join('')}
-</script>
-</body>
-</html>
+document.getElementById('kpi').innerHTML=\`<div class="kpi-card"><div class="kpi-value">\${fmtVND(inventoryData.total.value)}</div><div class="kpi-label">Tổng giá trị</div></div>
+<div class="kpi-card"><div class="kpi-value">\${fmtNum(inventoryData.total.products)}</div><div class="kpi-label">Sản phẩm</div></div>
+<div class="kpi-card"><div class="kpi-value">\${inventoryData.total.sellRate}%</div><div class="kpi-label">Tỷ lệ bán</div></div>
+<div class="kpi-card"><div class="kpi-value">\${inventoryData.total.stuck}</div><div class="kpi-label">Vướng mắc</div></div>\`;
+document.getElementById('tbl').innerHTML=inventoryData.topProjects.map(p=>\`<tr><td>\${p.name}</td><td>\${p.area}</td><td>\${fmtNum(p.products)}</td><td>\${fmtVND(p.value)}</td><td>\${p.percentage}%</td></tr>\`).join('');
+document.addEventListener('keydown',e=>{if(e.ctrlKey&&e.key==='k'){e.preventDefault();const q=prompt('Search:');if(q)alert('Searching: '+q)}});
+</script></body></html>
