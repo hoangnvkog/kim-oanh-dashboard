@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<title>Minimalist Spotlight</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:#fff;color:#1a1a1a;min-height:100vh}
+.spotlight-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.9);display:none;flex-direction:column;align-items:center;justify-content:center;z-index:1000;padding:24px}
+.spotlight-overlay.active{display:flex}
+.spotlight-input{width:100%;max-width:600px;padding:16px 24px;border-radius:12px;border:none;font-size:18px;background:#222;color:#fff;outline:none;margin-bottom:16px}
+.spotlight-results{width:100%;max-width:600px;background:#fff;border-radius:12px;overflow:hidden}
+.spotlight-item{padding:16px 24px;border-bottom:1px solid #eee;cursor:pointer;font-size:14px}
+.spotlight-item:hover{background:#f5f5f5}
+.header{text-align:center;padding:80px 24px 40px}
+.header h1{font-size:48px;font-weight:700;margin-bottom:16px;letter-spacing:-1px}
+.header p{font-size:18px;color:#666;margin-bottom:32px}
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:24px;max-width:900px;margin:0 auto;padding:0 24px}
+.kpi-card{background:#f9f9f9;border:1px solid #eee;border-radius:16px;padding:32px;text-align:center;transition:transform 0.2s}
+.kpi-card:hover{transform:translateY(-4px)}
+.kpi-value{font-size:40px;font-weight:700;color:#1a1a1a;margin-bottom:8px}
+.kpi-label{font-size:13px;color:#888;text-transform:uppercase;letter-spacing:1px}
+.cmd-hint{position:fixed;bottom:24px;right:24px;background:#1a1a1a;color:#fff;padding:8px 16px;border-radius:8px;font-size:13px;cursor:pointer}
+@media(max-width:768px){.header h1{font-size:32px}}
+</style>
+</head>
+<body>
+<div class="spotlight-overlay" id="spotlight">
+<input type="text" class="spotlight-input" placeholder="Search anything..." id="searchInput" oninput="search(this.value)">
+<div class="spotlight-results" id="results"></div>
+</div>
+<div class="header">
+<h1>Minimal.</h1>
+<p>Less is more. Clean analytics for focused minds.</p>
+</div>
+<div class="kpi-grid">
+<div class="kpi-card"><div class="kpi-value">$2.4M</div><div class="kpi-label">Revenue</div></div>
+<div class="kpi-card"><div class="kpi-value">+12.5%</div><div class="kpi-label">Growth</div></div>
+<div class="kpi-card"><div class="kpi-value">3.2K</div><div class="kpi-label">Users</div></div>
+<div class="kpi-card"><div class="kpi-value">98%</div><div class="kpi-label">Uptime</div></div>
+</div>
+<div class="cmd-hint" onclick="toggleSpotlight()">⌘K Spotlight</div>
+<script>
+const items=['Revenue Overview','User Analytics','Growth Reports','Settings','Export Data','Team Members','Billing'];function toggleSpotlight(){const s=document.getElementById('spotlight');s.classList.toggle('active');if(s.classList.contains('active')){document.getElementById('searchInput').focus()}}document.addEventListener('keydown',e=>{if(e.ctrlKey&&e.key==='k'){e.preventDefault();toggleSpotlight()}});function search(q){const r=document.getElementById('results');if(!q){r.innerHTML='';return}const filtered=items.filter(i=>i.toLowerCase().includes(q.toLowerCase()));r.innerHTML=filtered.map(i=>\`<div class="spotlight-item">\${i}</div>\`).join('')}
+</script>
+</body>
+</html>
