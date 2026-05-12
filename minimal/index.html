@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Minimalist - Tồn Kho</title>
+<title>Minimalist — Tồn Kho</title>
 <script src="../data.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -21,7 +21,14 @@ table{width:100%;max-width:900px;margin:40px auto;border-collapse:collapse;font-
 th{padding:16px;border-bottom:2px solid #1a1a1a;font-size:12px;text-transform:uppercase;text-align:left}
 td{padding:16px;border-bottom:1px solid #eee}
 tr:hover{background:#f9f9f9}
-.spotlight{position:fixed;bottom:24px;right:24px;background:#1a1a1a;color:#fff;padding:12px 24px;border-radius:12px;font-size:13px;cursor:pointer}
+.spotlight{position:fixed;bottom:24px;right:24px;background:#1a1a1a;color:#fff;padding:12px 24px;border-radius:12px;font-size:13px;cursor:pointer;box-shadow:0 10px 40px rgba(0,0,0,0.15)}
+.spotlight-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.4);display:none;z-index:999}
+.spotlight-modal{position:fixed;top:15%;left:50%;transform:translateX(-50%);width:600px;max-width:90%;background:#fff;border-radius:16px;padding:24px;display:none;z-index:1000;box-shadow:0 25px 50px -12px rgba(0,0,0,0.25)}
+.spotlight-modal.active,.spotlight-overlay.active{display:block}
+.spotlight-input{width:100%;padding:12px;border:1px solid #eee;border-radius:8px;font-size:16px;outline:none;margin-bottom:12px}
+.spotlight-results{max-height:300px;overflow-y:auto}
+.spotlight-item{padding:10px 12px;border-radius:6px;cursor:pointer;font-size:14px;color:#1a1a1a}
+.spotlight-item:hover{background:#f5f5f5}
 @media(max-width:768px){.header h1{font-size:32px}}
 </style>
 </head>
@@ -29,15 +36,36 @@ tr:hover{background:#f9f9f9}
 <div class="header"><h1>Tồn Kho</h1><p>Báo cáo 20 dự án</p></div>
 <div class="kpi-grid" id="kpi"></div>
 <table><thead><tr><th>Dự án</th><th>Khu vực</th><th>SP</th><th>Giá trị (tỷ)</th><th>%</th></tr></thead><tbody id="tbl"></tbody></table>
-<div class="spotlight" onclick="alert('Search: TAM PHƯỚC, CENTURY, RICHLAND...')">K Spotlight</div>
+<div class="spotlight" id="spotlightBtn">⌘K Spotlight</div>
+<div class="spotlight-overlay" id="spotlightOverlay"></div>
+<div class="spotlight-modal" id="spotlightModal"><input class="spotlight-input" placeholder="Tìm kiếm dự án, khu vực..." id="spotlightInput"><div class="spotlight-results" id="spotlightResults"></div></div>
 <script>
 document.addEventListener('DOMContentLoaded', function(){
 document.getElementById('kpi').innerHTML='<div class="kpi-card"><div class="kpi-value">'+fmtVND(inventoryData.total.value)+'</div><div class="kpi-label">Tổng giá trị</div></div>'+
 '<div class="kpi-card"><div class="kpi-value">'+fmtNum(inventoryData.total.products)+'</div><div class="kpi-label">Sản phẩm</div></div>'+
-'<div class="kpi-card"><div class="kpi-value">'+inventoryData.total.sellRate+'%</div><div class="kpi-label">Tỷ lệ bán</div></div>'+
+'<div class="kpi-card"><div class="kpi-value">'+inventoryData.total.sellThroughRate+'%</div><div class="kpi-label">Sell-through Rate</div></div>'+
 '<div class="kpi-card"><div class="kpi-value">'+inventoryData.total.stuck+'</div><div class="kpi-label">Vướng mắc</div></div>';
-document.getElementById('tbl').innerHTML=inventoryData.topProjects.map(function(p){return '<tr><td>'+p.name+'</td><td>'+p.area+'</td><td>'+fmtNum(p.products)+'</td><td>'+fmtVND(p.value)+'</td><td>'+p.percentage+'%</td></tr>';}).join('');
-document.addEventListener('keydown',function(e){if(e.ctrlKey&&e.key==='k'){e.preventDefault();var q=prompt('Search:');if(q)alert('Searching: '+q);}});
+function renderTable(filter){
+var filtered = filter ? inventoryData.topProjects.filter(function(p){return p.name.toLowerCase().includes(filter.toLowerCase()) || p.area.toLowerCase().includes(filter.toLowerCase());}) : inventoryData.topProjects;
+document.getElementById('tbl').innerHTML=filtered.map(function(p){return '<tr><td>'+p.name+'</td><td>'+p.area+'</td><td>'+fmtNum(p.products)+'</td><td>'+fmtVND(p.value)+'</td><td>'+p.percentage+'%</td></tr>';}).join('');
+}
+renderTable();
+ document.getElementById('spotlightBtn').addEventListener('click', function(){
+  document.getElementById('spotlightModal').classList.add('active');
+  document.getElementById('spotlightOverlay').classList.add('active');
+  document.getElementById('spotlightInput').focus();
+});
+  document.getElementById('spotlightOverlay').addEventListener('click', function(){
+   document.getElementById('spotlightModal').classList.remove('active');
+   document.getElementById('spotlightOverlay').classList.remove('active');
+  });
+document.addEventListener('keydown',function(e){if(e.ctrlKey&&e.key==='k'){e.preventDefault();document.getElementById('spotlightModal').classList.toggle('active');document.getElementById('spotlightOverlay').classList.toggle('active');if(document.getElementById('spotlightModal').classList.contains('active'))document.getElementById('spotlightInput').focus();}});
+  document.getElementById('spotlightInput').addEventListener('input', function(e){
+   var q=e.target.value;
+   var results=inventoryData.topProjects.filter(function(p){return p.name.toLowerCase().includes(q.toLowerCase()) || p.area.toLowerCase().includes(q.toLowerCase());}).map(function(p){return '<div class="spotlight-item">'+p.name+' — '+p.area+' — '+fmtVND(p.value)+'</div>';}).join('');
+    document.getElementById('spotlightResults').innerHTML=results || '<div class="spotlight-item">Không tìm thấy</div>';
+   renderTable(q);
+  });
 });
 </script>
 </body>

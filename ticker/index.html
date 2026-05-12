@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ticker Pro - Tồn Kho</title>
+<title>Ticker Pro — Tồn Kho</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <script src="../data.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -19,6 +19,9 @@ body{font-family:'Inter',sans-serif;background:#0f172a;color:#e2e8f0;min-height:
 .kpi-card{background:#1e293b;border:1px solid #334155;border-radius:12px;padding:20px;text-align:center}
 .kpi-value{font-size:32px;font-weight:700;color:#3B82F6}
 .kpi-label{font-size:12px;color:#94a3b8;text-transform:uppercase;margin-bottom:8px}
+.filter-bar{display:flex;gap:8px;margin-bottom:16px}
+.filter-btn{padding:6px 12px;border-radius:6px;border:1px solid #334155;background:#1e293b;color:#94a3b8;cursor:pointer;font-size:13px}
+.filter-btn.active{background:#3B82F6;color:#fff;border-color:#3B82F6}
 table{width:100%;border-collapse:collapse;margin-top:24px;font-size:14px}
 th{padding:12px;color:#94a3b8;border-bottom:1px solid #334155;font-size:12px;text-transform:uppercase;text-align:left}
 td{padding:12px;border-bottom:1px solid #1e293b}
@@ -30,22 +33,38 @@ tr:hover td{background:#1e293b}
 <div class="ticker"><div class="ticker-inner" id="ticker"></div></div>
 <div class="container">
 <div class="kpi-grid" id="kpi"></div>
-<table><thead><tr><th>Dự án</th><th>Khu vực</th><th>Giá trị (tỷ)</th><th>Trend</th></tr></thead><tbody id="table"></tbody></table>
+<div class="filter-bar"><button class="filter-btn active" onclick="filterArea('all')">Tất cả</button><button class="filter-btn" onclick="filterArea('Đồng Nai')">Đồng Nai</button><button class="filter-btn" onclick="filterArea('Bình Dương')">Bình Dương</button></div>
+<table><thead><tr><th>Dự án</th><th>Khu vực</th><th>Giá trị (tỷ)</th><th>Sell-through</th><th>Trend</th></tr></thead><tbody id="table"></tbody></table>
 </div>
 <script>
+var allProjects = inventoryData.topProjects;
+function renderProjects(filter){
+var filtered = filter === 'all' ? allProjects : allProjects.filter(function(p){return p.area === filter;});
+document.getElementById('table').innerHTML=filtered.map(function(p){
+return '<tr><td>'+p.name+'</td><td>'+p.area+'</td><td>'+fmtVND(p.value)+'</td><td>'+p.sellThroughRate+'%</td><td><div class="inline-spark">'+Array(7).fill(0).map(function(_,i){return '<div style="height:'+(20+Math.random()*80)+'%"></div>';}).join('')+'</div></td></tr>';
+}).join('');
+}
 document.addEventListener('DOMContentLoaded', function() {
 document.getElementById('kpi').innerHTML='<div class="kpi-card"><div class="kpi-label">Tổng giá trị</div><div class="kpi-value">'+fmtVND(inventoryData.total.value)+'</div></div>'+
 '<div class="kpi-card"><div class="kpi-label">Tổng SP</div><div class="kpi-value">'+fmtNum(inventoryData.total.products)+'</div></div>'+
-'<div class="kpi-card"><div class="kpi-label">Đã bán</div><div class="kpi-value">'+inventoryData.total.sellRate+'%</div></div>'+
+'<div class="kpi-card"><div class="kpi-label">Sell-through Rate</div><div class="kpi-value">'+inventoryData.total.sellThroughRate+'%</div></div>'+
 '<div class="kpi-card"><div class="kpi-label">Vướng mắc</div><div class="kpi-value">'+inventoryData.total.stuck+'</div></div>';
 var t=document.getElementById('ticker');var th='';
 inventoryData.topProjects.forEach(function(p){
-th+='<span class="ticker-item"><b>'+p.name+'</b> '+fmtVND(p.value)+' <span class="'+(p.percentage>5?'up':'down')+'">'+p.percentage+'%</span></span>';
+th+='<span class="ticker-item"><b>'+p.name+'</b> '+fmtVND(p.value)+' <span class="'+(p.sellThroughRate>30?'up':'down')+'">'+p.sellThroughRate+'%</span></span>';
 });
 t.innerHTML=th+th;
-document.getElementById('table').innerHTML=inventoryData.topProjects.map(function(p,idx){
-return '<tr><td>'+p.name+'</td><td>'+p.area+'</td><td>'+fmtVND(p.value)+'</td><td><div class="inline-spark">'+Array(7).fill(0).map(function(_,i){return '<div style="height:'+(20+Math.random()*80)+'%"></div>';}).join('')+'</div></td></tr>';
-}).join('');
+renderProjects('all');
+// Real-time update simulation
+setInterval(function(){
+var randomProject = inventoryData.topProjects[Math.floor(Math.random()*inventoryData.topProjects.length)];
+document.querySelector('.ticker-inner').innerHTML += '<span class="ticker-item" style="color:#10B981;font-weight:bold">🔴 Mới: '+randomProject.name+' — '+fmtVND(randomProject.value)+'</span>';
+},30000);
+window.filterArea = function(area){
+document.querySelectorAll('.filter-btn').forEach(function(b){b.classList.remove('active');});
+event.target.classList.add('active');
+renderProjects(area);
+};
 });
 </script>
 </body>

@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dual Mode - Tồn Kho</title>
+<title>Dual Mode — Tồn Kho</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <script src="../data.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -26,22 +26,23 @@ td{padding:12px;border-bottom:1px solid rgba(255,255,255,0.05)}
 </head>
 <body>
 <div class="container">
-<h1 style="margin-bottom:16px">Dual Mode Analytics</h1>
-<div class="toggle-bar"><button class="toggle-btn active" onclick="setTheme('dark')">Dark</button>
-<button class="toggle-btn" onclick="setTheme('light')">Light</button>
-<button class="toggle-btn" onclick="setTheme('warm')">Warm</button></div>
+<h1 style="margin-bottom:16px">🎨 Dual Mode Analytics</h1>
+<div class="toggle-bar"><button class="toggle-btn active" onclick="setTheme('dark')">🌙 Dark</button>
+<button class="toggle-btn" onclick="setTheme('light')">☀️ Light</button>
+<button class="toggle-btn" onclick="setTheme('warm')">🌅 Warm</button></div>
 <div class="kpi-grid" id="kpi"></div>
 <div class="chart-card"><div class="chart-wrapper"><canvas id="regionChart"></canvas></div></div>
-<div class="chart-card"><div class="chart-wrapper"><canvas id="projChart"></canvas></div></div>
-<table><thead><tr><th>Dự án</th><th>Khu vực</th><th>SP</th><th>Giá trị (tỷ)</th></tr></thead><tbody id="tbl"></tbody></table>
+<div class="chart-card"><div class="chart-wrapper"><canvas id="statusChart"></canvas></div></div>
+<div class="chart-card"><div class="chart-wrapper"><canvas id="trendChart"></canvas></div></div>
+<table><thead><tr><th>Dự án</th><th>Khu vực</th><th>SP</th><th>Giá trị (tỷ)</th><th>Sell-through</th></tr></thead><tbody id="tbl"></tbody></table>
 </div>
 <script>
 function render(){
 document.getElementById('kpi').innerHTML='<div class="kpi-card"><div class="kpi-label">Tổng GT</div><div class="kpi-value">'+fmtVND(inventoryData.total.value)+'</div></div>'+
 '<div class="kpi-card"><div class="kpi-label">SP</div><div class="kpi-value">'+fmtNum(inventoryData.total.products)+'</div></div>'+
-'<div class="kpi-card"><div class="kpi-label">Bán</div><div class="kpi-value">'+inventoryData.total.sellRate+'%</div></div>'+
+'<div class="kpi-card"><div class="kpi-label">Sell-through</div><div class="kpi-value">'+inventoryData.total.sellThroughRate+'%</div></div>'+
 '<div class="kpi-card"><div class="kpi-label">Vướng</div><div class="kpi-value">'+inventoryData.total.stuck+'</div></div>';
-document.getElementById('tbl').innerHTML=inventoryData.topProjects.map(function(p){return '<tr><td>'+p.name+'</td><td>'+p.area+'</td><td>'+fmtNum(p.products)+'</td><td>'+fmtVND(p.value)+'</td></tr>';}).join('');
+document.getElementById('tbl').innerHTML=inventoryData.topProjects.map(function(p){return '<tr><td>'+p.name+'</td><td>'+p.area+'</td><td>'+fmtNum(p.products)+'</td><td>'+fmtVND(p.value)+'</td><td>'+p.sellThroughRate+'%</td></tr>';}).join('');
 }
 function setTheme(m){
 var r=document.documentElement;
@@ -54,7 +55,8 @@ event.target.classList.add('active');
 document.addEventListener('DOMContentLoaded', function(){
 render();
 new Chart(document.getElementById('regionChart'),{type:'bar',data:{labels:inventoryData.regions.map(function(r){return r.name;}),datasets:[{label:'Giá trị (tỷ)',data:inventoryData.regions.map(function(r){return r.value;}),backgroundColor:inventoryData.regions.map(function(r){return r.color;})}]},options:{responsive:true,maintainAspectRatio:false}});
-new Chart(document.getElementById('projChart'),{type:'line',data:{labels:inventoryData.topProjects.slice(0,5).map(function(p){return p.name;}),datasets:[{data:inventoryData.topProjects.slice(0,5).map(function(p){return p.value;}),borderColor:'#3B82F6',tension:0.4,fill:true}]},options:{responsive:true,maintainAspectRatio:false}});
+new Chart(document.getElementById('statusChart'),{type:'pie',data:{labels:inventoryData.status.map(function(s){return s.label;}),datasets:[{data:inventoryData.status.map(function(s){return s.count;}),backgroundColor:inventoryData.status.map(function(s){return s.color;})}]},options:{responsive:true,maintainAspectRatio:false}});
+new Chart(document.getElementById('trendChart'),{type:'line',data:{labels:inventoryData.monthlyTrend.map(function(m){return m.month;}),datasets:[{label:'Đã bán',data:inventoryData.monthlyTrend.map(function(m){return m.sold;}),borderColor:'#3B82F6',tension:0.4},{label:'Vướng mắc mới',data:inventoryData.monthlyTrend.map(function(m){return m.newStuck;}),borderColor:'#EF4444',tension:0.4}]},options:{responsive:true,maintainAspectRatio:false}});
 });
 </script>
 </body>
