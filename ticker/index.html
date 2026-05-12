@@ -1,10 +1,12 @@
 <!DOCTYPE html>
 <html lang="vi">
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ticker Pro - Tồn Kho</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <script src="../data.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<title>Ticker Pro — Tồn Kho</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'Inter',sans-serif;background:#0f172a;color:#e2e8f0;min-height:100vh}
@@ -22,17 +24,29 @@ th{padding:12px;color:#94a3b8;border-bottom:1px solid #334155;font-size:12px;tex
 td{padding:12px;border-bottom:1px solid #1e293b}
 tr:hover td{background:#1e293b}
 .inline-spark{display:flex;align-items:flex-end;height:24px;gap:1px;width:80px}.inline-spark div{flex:1;background:#10B981;border-radius:1px;min-height:2px}
-</style></head><body>
+</style>
+</head>
+<body>
 <div class="ticker"><div class="ticker-inner" id="ticker"></div></div>
 <div class="container">
 <div class="kpi-grid" id="kpi"></div>
 <table><thead><tr><th>Dự án</th><th>Khu vực</th><th>Giá trị (tỷ)</th><th>Trend</th></tr></thead><tbody id="table"></tbody></table>
 </div>
 <script>
-document.getElementById('kpi').innerHTML=\`<div class="kpi-card"><div class="kpi-label">Tổng giá trị</div><div class="kpi-value">\${fmtVND(inventoryData.total.value)}</div></div>
-<div class="kpi-card"><div class="kpi-label">Tổng SP</div><div class="kpi-value">\${fmtNum(inventoryData.total.products)}</div></div>
-<div class="kpi-card"><div class="kpi-label">Đã bán</div><div class="kpi-value">\${inventoryData.total.sellRate}%</div></div>
-<div class="kpi-card"><div class="kpi-label">Vướng mắc</div><div class="kpi-value">\${inventoryData.total.stuck}</div></div>\`;
-const t=document.getElementById('ticker');let th='';inventoryData.topProjects.forEach(p=>{th+=\`<span class="ticker-item"><b>\${p.name}</b> \${fmtVND(p.value)} <span class="\${p.percentage>5?'up':'down'}">\${p.percentage}%</span></span>\`;});t.innerHTML=th+th;
-document.getElementById('table').innerHTML=inventoryData.topProjects.map((p,idx)=>\`<tr><td>\${p.name}</td><td>\${p.area}</td><td>\${fmtVND(p.value)}</td><td><div class="inline-spark">\${Array(7).fill(0).map((_,i)=>(\`<div style="height:\${20+Math.random()*80}%"></div>\`)).join('')}</div></td></tr>\`).join('');
-</script></body></html>
+document.addEventListener('DOMContentLoaded', function() {
+document.getElementById('kpi').innerHTML='<div class="kpi-card"><div class="kpi-label">Tổng giá trị</div><div class="kpi-value">'+fmtVND(inventoryData.total.value)+'</div></div>'+
+'<div class="kpi-card"><div class="kpi-label">Tổng SP</div><div class="kpi-value">'+fmtNum(inventoryData.total.products)+'</div></div>'+
+'<div class="kpi-card"><div class="kpi-label">Đã bán</div><div class="kpi-value">'+inventoryData.total.sellRate+'%</div></div>'+
+'<div class="kpi-card"><div class="kpi-label">Vướng mắc</div><div class="kpi-value">'+inventoryData.total.stuck+'</div></div>';
+var t=document.getElementById('ticker');var th='';
+inventoryData.topProjects.forEach(function(p){
+th+='<span class="ticker-item"><b>'+p.name+'</b> '+fmtVND(p.value)+' <span class="'+(p.percentage>5?'up':'down')+'">'+p.percentage+'%</span></span>';
+});
+t.innerHTML=th+th;
+document.getElementById('table').innerHTML=inventoryData.topProjects.map(function(p,idx){
+return '<tr><td>'+p.name+'</td><td>'+p.area+'</td><td>'+fmtVND(p.value)+'</td><td><div class="inline-spark">'+Array(7).fill(0).map(function(_,i){return '<div style="height:'+(20+Math.random()*80)+'%"></div>';}).join('')+'</div></td></tr>';
+}).join('');
+});
+</script>
+</body>
+</html>

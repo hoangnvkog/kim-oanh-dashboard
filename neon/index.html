@@ -1,10 +1,12 @@
 <!DOCTYPE html>
 <html lang="vi">
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Neon Bento - Tồn Kho</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <script src="../data.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<title>Neon Bento — Tồn Kho</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'Inter',sans-serif;background:#050505;color:#fff;min-height:100vh;padding:24px}
@@ -22,8 +24,10 @@ h1{text-align:center;padding:24px 0;font-size:24px;text-shadow:0 0 20px #ff00ff}
 .chart-wrapper{height:200px}
 .data-val{color:#00ffff;font-size:32px;font-weight:700}
 @media(max-width:768px){.bento-grid{grid-template-columns:repeat(2,1fr)}.bento-item.span-2{grid-column:span 2}}
-</style></head><body>
-<h1>⚡ Neon Bento — Tồn Kho</h1>
+</style>
+</head>
+<body>
+<h1>Neon Bento - Tồn Kho</h1>
 <div class="bento-grid">
 <div class="bento-item cyan span-2"><div class="label">Tổng giá trị</div><div class="data-val neon-text" id="totalVal">--</div><canvas id="c1" height="100"></canvas></div>
 <div class="bento-item magenta"><div class="label">Tổng SP</div><div class="data-val neon-text" id="totalProd">--</div></div>
@@ -33,11 +37,15 @@ h1{text-align:center;padding:24px 0;font-size:24px;text-shadow:0 0 20px #ff00ff}
 <div class="bento-item magenta span-2"><div class="label">Top dự án</div><div id="topList" style="font-size:13px;color:#ff00ff"></div></div>
 </div>
 <script>
+document.addEventListener('DOMContentLoaded', function() {
 document.getElementById('totalVal').textContent=fmtVND(inventoryData.total.value);
 document.getElementById('totalProd').textContent=fmtNum(inventoryData.total.products);
 document.getElementById('sellRate').textContent=inventoryData.total.sellRate+'%';
 document.getElementById('stuck').textContent=inventoryData.total.stuck;
-document.getElementById('topList').innerHTML=inventoryData.topProjects.slice(0,5).map(p=>\`${p.name}: ${fmtVND(p.value)}\`).join('<br>');
-new Chart(document.getElementById('c1'),{type:'line',data:{labels:inventoryData.topProjects.slice(0,7).map(p=>p.name),datasets:[{data:inventoryData.topProjects.slice(0,7).map(p=>p.value),borderColor:'#00ffff',tension:0.4,pointRadius:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{display:false},y:{display:false}}}});
-new Chart(document.getElementById('c2'),{type:'doughnut',data:{labels:inventoryData.regions.map(r=>r.name),datasets:[{data:inventoryData.regions.map(r=>r.value),backgroundColor:['#00ffff','#ff00ff','#ffff00']}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#fff'}}}}});
-</script></body></html>
+document.getElementById('topList').innerHTML=inventoryData.topProjects.slice(0,5).map(function(p){return p.name+': '+fmtVND(p.value);}).join('<br>');
+new Chart(document.getElementById('c1'),{type:'line',data:{labels:inventoryData.topProjects.slice(0,7).map(function(p){return p.name;}),datasets:[{data:inventoryData.topProjects.slice(0,7).map(function(p){return p.value;}),borderColor:'#00ffff',tension:0.4,pointRadius:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{display:false},y:{display:false}}}});
+new Chart(document.getElementById('c2'),{type:'doughnut',data:{labels:inventoryData.regions.map(function(r){return r.name;}),datasets:[{data:inventoryData.regions.map(function(r){return r.value;}),backgroundColor:['#00ffff','#ff00ff','#ffff00']}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#fff'}}}}});
+});
+</script>
+</body>
+</html>

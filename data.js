@@ -1,5 +1,5 @@
 // BÁO CÁO SẢN PHẨM TỒN KHO — Shared Data for Dashboards
-const inventoryData = {
+var inventoryData = {
   total: {
     value: 51054.01,
     valueFormatted: "51,054.01",
@@ -48,5 +48,5 @@ const inventoryData = {
 };
 
 // Helper to format VND
-const fmtVND = (v) => new Intl.NumberFormat('vi-VN', { maximumFractionDigits: 2 }).format(v) + ' tỷ';
-const fmtNum = (n) => new Intl.NumberFormat('vi-VN').format(n);
+var fmtVND = function(v) { return new Intl.NumberFormat('vi-VN', { maximumFractionDigits: 2 }).format(v) + ' tỷ'; };
+var fmtNum = function(n) { return new Intl.NumberFormat('vi-VN').format(n); };

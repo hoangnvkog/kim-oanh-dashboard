@@ -1,10 +1,11 @@
 <!DOCTYPE html>
 <html lang="vi">
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Minimalist - Tồn Kho</title>
 <script src="../data.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<title>Minimalist — Tồn Kho</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'Inter',sans-serif;background:#fff;color:#1a1a1a;min-height:100vh}
@@ -22,16 +23,22 @@ td{padding:16px;border-bottom:1px solid #eee}
 tr:hover{background:#f9f9f9}
 .spotlight{position:fixed;bottom:24px;right:24px;background:#1a1a1a;color:#fff;padding:12px 24px;border-radius:12px;font-size:13px;cursor:pointer}
 @media(max-width:768px){.header h1{font-size:32px}}
-</style></head><body>
-<div class="header"><h1>Tồn Kho</h1><p>Báo cáo 20 dự án • 6,485 sản phẩm</p></div>
+</style>
+</head>
+<body>
+<div class="header"><h1>Tồn Kho</h1><p>Báo cáo 20 dự án</p></div>
 <div class="kpi-grid" id="kpi"></div>
-<table><thead><tr><th>Dự án</th><th>Khu vực</th><th>SP</th><th>Giá trị (tỷ)</th>%</th></tr></thead><tbody id="tbl"></tbody></table>
-<div class="spotlight" onclick="alert('Search: TAM PHƯỚC, CENTURY, RICHLAND...')">⌘K Spotlight</div>
+<table><thead><tr><th>Dự án</th><th>Khu vực</th><th>SP</th><th>Giá trị (tỷ)</th><th>%</th></tr></thead><tbody id="tbl"></tbody></table>
+<div class="spotlight" onclick="alert('Search: TAM PHƯỚC, CENTURY, RICHLAND...')">K Spotlight</div>
 <script>
-document.getElementById('kpi').innerHTML=\`<div class="kpi-card"><div class="kpi-value">\${fmtVND(inventoryData.total.value)}</div><div class="kpi-label">Tổng giá trị</div></div>
-<div class="kpi-card"><div class="kpi-value">\${fmtNum(inventoryData.total.products)}</div><div class="kpi-label">Sản phẩm</div></div>
-<div class="kpi-card"><div class="kpi-value">\${inventoryData.total.sellRate}%</div><div class="kpi-label">Tỷ lệ bán</div></div>
-<div class="kpi-card"><div class="kpi-value">\${inventoryData.total.stuck}</div><div class="kpi-label">Vướng mắc</div></div>\`;
-document.getElementById('tbl').innerHTML=inventoryData.topProjects.map(p=>\`<tr><td>\${p.name}</td><td>\${p.area}</td><td>\${fmtNum(p.products)}</td><td>\${fmtVND(p.value)}</td><td>\${p.percentage}%</td></tr>\`).join('');
-document.addEventListener('keydown',e=>{if(e.ctrlKey&&e.key==='k'){e.preventDefault();const q=prompt('Search:');if(q)alert('Searching: '+q)}});
-</script></body></html>
+document.addEventListener('DOMContentLoaded', function(){
+document.getElementById('kpi').innerHTML='<div class="kpi-card"><div class="kpi-value">'+fmtVND(inventoryData.total.value)+'</div><div class="kpi-label">Tổng giá trị</div></div>'+
+'<div class="kpi-card"><div class="kpi-value">'+fmtNum(inventoryData.total.products)+'</div><div class="kpi-label">Sản phẩm</div></div>'+
+'<div class="kpi-card"><div class="kpi-value">'+inventoryData.total.sellRate+'%</div><div class="kpi-label">Tỷ lệ bán</div></div>'+
+'<div class="kpi-card"><div class="kpi-value">'+inventoryData.total.stuck+'</div><div class="kpi-label">Vướng mắc</div></div>';
+document.getElementById('tbl').innerHTML=inventoryData.topProjects.map(function(p){return '<tr><td>'+p.name+'</td><td>'+p.area+'</td><td>'+fmtNum(p.products)+'</td><td>'+fmtVND(p.value)+'</td><td>'+p.percentage+'%</td></tr>';}).join('');
+document.addEventListener('keydown',function(e){if(e.ctrlKey&&e.key==='k'){e.preventDefault();var q=prompt('Search:');if(q)alert('Searching: '+q);}});
+});
+</script>
+</body>
+</html>
