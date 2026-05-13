@@ -3,9 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Neon Bento — Tồn Kho</title>
+<title>Neon Bento — Full Dashboard</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <script src="../data.js"></script>
+<script src="../dashboard-shared.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
@@ -17,38 +18,181 @@ body{font-family:'Inter',sans-serif;background:#050505;color:#fff;min-height:100
 .bento-item.magenta{border-color:#ff00ff;box-shadow:0 0 20px rgba(255,0,255,0.2)}.bento-item.magenta::before{background:linear-gradient(135deg,#ff00ff20,#ff00ff05)}
 .bento-item.green{border-color:#00ff41;box-shadow:0 0 20px rgba(0,255,65,0.2)}.bento-item.green::before{background:linear-gradient(135deg,#00ff4120,#00ff4105)}
 .bento-item.yellow{border-color:#ffff00;box-shadow:0 0 20px rgba(255,255,0,0.2)}.bento-item.yellow::before{background:linear-gradient(135deg,#ffff0020,#ffff0005)}
-.bento-item.span-2{grid-column:span 2}.bento-item.span-2-row{grid-row:span 2}
-.val{font-size:36px;font-weight:700}.label{font-size:12px;text-transform:uppercase;letter-spacing:1px;opacity:0.7;margin-bottom:8px}
+.bento-item.span-2{grid-column:span 2}.bento-item.span-3{grid-column:span 3}.bento-item.span-2-row{grid-row:span 2}
+.val{font-size:36px;font-weight:700}.label{font-size:12px;text-transform:uppercase;letter-spacing:1px;opacity:0.7;margin-bottom:8px;color:#fff}
 .neon-text{text-shadow:0 0 10px currentColor}
 h1{text-align:center;padding:24px 0;font-size:24px;text-shadow:0 0 20px #ff00ff}
 .chart-wrapper{height:200px}
-.data-val{color:#00ffff;font-size:32px;font-weight:700}
+.data-val{color:#00ffff;font-size:32px;font-weight:700}.data-val.magenta{color:#ff00ff}.data-val.green{color:#00ff41}.data-val.yellow{color:#ffff00}
 @keyframes glow{0%{box-shadow:0 0 20px rgba(0,255,255,0.2)}100%{box-shadow:0 0 40px rgba(0,255,255,0.4)}}
-@media(max-width:768px){.bento-grid{grid-template-columns:repeat(2,1fr)}.bento-item.span-2{grid-column:span 2}}
+@keyframes glow-magenta{0%{box-shadow:0 0 20px rgba(255,0,255,0.2)}100%{box-shadow:0 0 40px rgba(255,0,255,0.4)}}
+@keyframes glow-green{0%{box-shadow:0 0 20px rgba(0,255,65,0.2)}100%{box-shadow:0 0 40px rgba(0,255,65,0.4)}}
+.btn-neon{padding:6px 12px;border-radius:6px;border:1px solid #00ffff;background:rgba(0,255,255,0.1);color:#00ffff;cursor:pointer;font-size:13px;margin:2px;transition:.2s}
+.btn-neon:hover{background:rgba(0,255,255,0.2);box-shadow:0 0 10px #00ffff}
+.btn-magenta{padding:6px 12px;border-radius:6px;border:1px solid #ff00ff;background:rgba(255,0,255,0.1);color:#ff00ff;cursor:pointer;font-size:13px;margin:2px;transition:.2s}
+.btn-magenta:hover{background:rgba(255,0,255,0.2);box-shadow:0 0 10px #ff00ff}
+.table-neon{width:100%;border-collapse:collapse;font-size:13px}
+.table-neon th,.table-neon td{padding:10px;border-bottom:1px solid rgba(0,255,255,0.1);color:#fff}
+.table-neon th{color:#00ffff;font-size:11px;text-transform:uppercase;letter-spacing:1px;text-align:left}
+.table-neon tr:hover td{background:rgba(0,255,255,0.05);cursor:pointer}
+.alert-neon td{background:rgba(255,0,0,0.1)!important}
+@media(max-width:768px){.bento-grid{grid-template-columns:repeat(2,1fr)}.bento-item.span-2,.bento-item.span-3{grid-column:span 2}}
 </style>
 </head>
 <body>
-<h1>⚡ Neon Bento — Tồn Kho ⚡</h1>
+<h1>⚡ Neon Bento — Full Dashboard ⚡</h1>
+
 <div class="bento-grid">
-<div class="bento-item cyan span-2"><div class="label">Tổng giá trị tồn kho</div><div class="data-val neon-text" id="totalVal">--</div><canvas id="c1" height="100"></canvas></div>
-<div class="bento-item magenta"><div class="label">Tổng SP</div><div class="data-val neon-text" id="totalProd">--</div></div>
-<div class="bento-item green span-2-row"><div class="label">Phân bổ giá trị theo khu vực</div><div class="chart-wrapper"><canvas id="c2"></canvas></div></div>
-<div class="bento-item yellow"><div class="label">Sell-through Rate</div><div class="data-val neon-text" id="sellRate">--</div></div>
-<div class="bento-item cyan"><div class="label">SP Vướng mắc</div><div class="data-val neon-text" id="stuck">--</div></div>
-<div class="bento-item magenta span-2"><div class="label">Top 10 dự án</div><div id="topList" style="font-size:13px;color:#ff00ff"></div></div>
-<div class="bento-item green"><div class="label">Sell-through Rate theo vùng</div><div class="chart-wrapper"><canvas id="c3"></canvas></div></div>
+  <!-- KPI Row -->
+  <div class="bento-item cyan span-2">
+    <div class="label">Tổng giá trị tồn kho</div>
+    <div class="data-val neon-text" id="totalVal">--</div>
+    <canvas id="c1" height="80"></canvas>
+  </div>
+  <div class="bento-item magenta">
+    <div class="label">Tổng SP</div>
+    <div class="data-val neon-text magenta" id="totalProd">--</div>
+  </div>
+  <div class="bento-item green">
+    <div class="label">Sell-through Rate</div>
+    <div class="data-val neon-text green" id="sellRate">--</div>
+    <div id="sellAlert" style="font-size:11px;margin-top:4px"></div>
+  </div>
+
+  <!-- Charts Row -->
+  <div class="bento-item green span-2-row">
+    <div class="label">Phân bổ giá trị theo khu vực</div>
+    <div class="chart-wrapper"><canvas id="c2"></canvas></div>
+  </div>
+  <div class="bento-item yellow">
+    <div class="label">SP Vướng mắc</div>
+    <div class="data-val yellow" id="stuck">--</div>
+    <div id="stuckPct" style="font-size:11px;color:#fff;margin-top:4px"></div>
+  </div>
+  <div class="bento-item cyan">
+    <div class="label">Turnover</div>
+    <div class="data-val" id="turnover">--</div>
+  </div>
+
+  <!-- Tables Row -->
+  <div class="bento-item span-3" style="padding:12px 24px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;flex-wrap:wrap;gap:8px">
+      <span style="color:#ff00ff;font-weight:600">⚠️ Vướng mắc chi tiết</span>
+      <div>
+        <button class="btn-magenta" onclick="exportToCSV('stuckTableNeon','neon-vuong')">📥 CSV</button>
+        <button class="btn-magenta" onclick="printTable('stuckTableNeon')">🖨️ In</button>
+      </div>
+    </div>
+    <table class="table-neon" id="stuckTableNeon">
+      <thead><tr><th>Dự án</th><th>Khu vực</th><th>Tổng SP</th><th>Vướng</th><th>% Vướng</th><th>GT Vướng</th><th>Cảnh báo</th></tr></thead>
+      <tbody id="stuckBodyNeon"></tbody>
+    </table>
+  </div>
+  <div class="bento-item magenta" style="padding:12px 24px">
+    <div style="color:#ff00ff;font-weight:600;margin-bottom:8px">🗺️ So sánh khu vực</div>
+    <table class="table-neon" id="regionTableNeon" style="font-size:11px">
+      <thead><tr><th>Chỉ số</th><th>ĐN</th><th>BD</th><th>Δ</th></tr></thead>
+      <tbody id="regionBodyNeon"></tbody>
+    </table>
+    <button class="btn-neon" style="margin-top:8px" onclick="exportToCSV('regionTableNeon','neon-region')">📥 CSV</button>
+  </div>
+
+  <!-- Sell-through Row -->
+  <div class="bento-item cspan-4" style="grid-column:span 4">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px">
+      <span class="label" style="color:#00ffff">📈 Dự án theo Sell-through (Click để drill-down)</span>
+      <div>
+        <button class="btn-neon" onclick="sortNeon('asc')">⬆️ Thấp đến cao</button>
+        <button class="btn-neon" onclick="sortNeon('desc')">⬇️ Cao đến thấp</button>
+        <button class="btn-neon" onclick="exportToCSV('sellTableNeon','neon-sell')">📥 CSV</button>
+        <button class="btn-neon" onclick="exportAllNeon()">📥 Xuất tất cả</button>
+      </div>
+    </div>
+    <table class="table-neon" id="sellTableNeon">
+      <thead><tr><th>#</th><th>Dự án</th><th>Khu vực</th><th>Sell-through</th><th>Đã bán</th><th>Chưa bán</th><th>Tồn</th><th>Giá trị</th><th>Trạng thái</th></tr></thead>
+      <tbody id="sellBodyNeon"></tbody>
+    </table>
+  </div>
 </div>
+
+<!-- Detail Modal --> 
+<div class="dash-modal" id="detailModalNeon" style="display:none">
+  <div class="dash-modal-overlay" onclick="closeModal('detailModalNeon')"></div>
+  <div class="dash-modal-content" style="background:#0a0a10;border-color:#00ffff">
+    <div class="dash-modal-header"><h3 id="detailTitleNeon" style="color:#00ffff">Chi tiết</h3><button onclick="closeModal('detailModalNeon')" style="background:none;border:none;color:#fff;font-size:24px;cursor:pointer">&times;</button></div>
+    <div class="dash-modal-body" id="detailBodyNeon"></div>
+  </div>
+</div>
+
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-document.getElementById('totalVal').textContent=fmtVND(inventoryData.total.value);
-document.getElementById('totalProd').textContent=fmtNum(inventoryData.total.products);
-document.getElementById('sellRate').textContent=inventoryData.total.sellThroughRate+'%';
-document.getElementById('stuck').textContent=fmtNum(inventoryData.total.stuck);
-document.getElementById('topList').innerHTML=inventoryData.topProjects.slice(0,5).map(function(p){return p.name+': '+fmtVND(p.value);}).join('<br>');
-new Chart(document.getElementById('c1'),{type:'line',data:{labels:inventoryData.topProjects.slice(0,7).map(function(p){return p.name;}),datasets:[{data:inventoryData.topProjects.slice(0,7).map(function(p){return p.value;}),borderColor:'#00ffff',tension:0.4,pointRadius:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{display:false},y:{display:false}}}});
-new Chart(document.getElementById('c2'),{type:'doughnut',data:{labels:inventoryData.regions.map(function(r){return r.name;}),datasets:[{data:inventoryData.regions.map(function(r){return r.value;}),backgroundColor:['#00ffff','#ff00ff','#ffff00']}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#fff'}}}}});
-new Chart(document.getElementById('c3'),{type:'bar',data:{labels:inventoryData.regions.map(function(r){return r.name;}),datasets:[{label:'Sell-through Rate (%)',data:inventoryData.regions.map(function(r){return r.sellThroughRate;}),backgroundColor:['#00ffff','#ff00ff','#ffff00']}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}}}});
-});
+var data = cloneData();
+enrichProjectData(data.topProjects);
+
+function initNeon(){
+  document.getElementById('totalVal').textContent = fmtVND(data.total.value);
+  document.getElementById('totalProd').textContent = fmtNum(data.total.products);
+  document.getElementById('sellRate').textContent = data.total.sellThroughRate + '%';
+  document.getElementById('sellAlert').textContent = data.total.sellThroughRate < 30 ? '⚠️ Cần đẩy mạnh' : '✓ Tốt';
+  document.getElementById('stuck').textContent = fmtNum(data.total.stuck);
+  document.getElementById('stuckPct').textContent = (data.total.stuck / data.total.products * 100).toFixed(1) + '% tổng SP';
+  document.getElementById('turnover').textContent = data.total.stockTurnover;
+
+  // Charts
+  new Chart(document.getElementById('c1'),{type:'line',data:{labels:data.topProjects.slice(0,7).map(function(p){return p.name.substring(0,10);}),datasets:[{data:data.topProjects.slice(0,7).map(function(p){return p.value;}),borderColor:'#00ffff',tension:0.4,pointRadius:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{display:false},y:{display:false}}}});
+  new Chart(document.getElementById('c2'),{type:'doughnut',data:{labels:data.regions.map(function(r){return r.name;}),datasets:[{data:data.regions.map(function(r){return r.value;}),backgroundColor:['#00ffff','#ff00ff','#ffff00']}]},options:{responsive:true,maintainAspectRatio:false}});
+
+  renderStuckNeon();
+  renderRegionNeon();
+  renderSellNeon('desc');
+}
+
+function renderStuckNeon(){
+  document.getElementById('stuckBodyNeon').innerHTML = data.topProjects.slice().sort(function(a,b){return b.stuckPct-a.stuckPct;}).map(function(p){
+    return '<tr class="'+(p.stuckPct>10?'alert-neon':'')+'" onclick="openDetailNeon(\''+p.name+'\')">'+
+      '<td><strong style="color:#00ffff">'+p.name+'</strong></td><td>'+p.area+'</td>'+
+      '<td>'+fmtNum(p.products)+'</td><td>'+p.stuck+'</td>'+
+      '<td style="color:'+(p.stuckPct>10?'#ff0000':'#00ff41')+'">'+p.stuckPct+'%</td>'+
+      '<td>'+fmtVND(p.stuckValue)+'</td><td>'+getAlertBadge(p.stuckLevel)+'</td></tr>';
+  }).join('');
+}
+
+function renderRegionNeon(){
+  var rows = [
+    {l:'Dự án', dn:data.regions[0].projects, bd:data.regions[1].projects},
+    {l:'SP', dn:data.regions[0].products, bd:data.regions[1].products},
+    {l:'Giá trị', dn:fmtVND(data.regions[0].value), bd:fmtVND(data.regions[1].value)},
+    {l:'Sell-through', dn:data.regions[0].sellThroughRate+'%', bd:data.regions[1].sellThroughRate+'%'},
+    {l:'Vướng mắc', dn:'56', bd:'44'}
+  ];
+  document.getElementById('regionBodyNeon').innerHTML = rows.map(function(r){
+    var diff = typeof r.dn === 'number' && typeof r.bd === 'number' ? (r.dn-r.bd).toFixed(1) : '—';
+    return '<tr><td style="color:#ff00ff">'+r.l+'</td><td>'+r.dn+'</td><td>'+r.bd+'</td><td style="color:'+(diff>0?'#00ff41':'#ff0000')+'">'+diff+'</td></tr>';
+  }).join('');
+}
+
+function renderSellNeon(dir){
+  var sorted = data.topProjects.slice().sort(function(a,b){return dir==='asc'?a.sellThroughRate-b.sellThroughRate:b.sellThroughRate-a.sellThroughRate;});
+  document.getElementById('sellBodyNeon').innerHTML = sorted.map(function(p,i){
+    return '<tr class="'+(p.alertLevel==='danger'?'alert-neon':'')+'" onclick="openDetailNeon(\''+p.name+'\')">'+
+      '<td><strong style="color:#ff00ff">'+(i+1)+'</strong></td><td>'+p.name+'</td><td>'+p.area+'</td>'+
+      '<td style="color:'+(p.sellThroughRate<30?'#ff0000':'#00ff41')+'">'+p.sellThroughRate+'%</td>'+
+      '<td>'+fmtNum(p.sold)+'</td><td>'+fmtNum(p.unsold)+'</td><td>'+fmtNum(p.products)+'</td>'+
+      '<td>'+fmtVND(p.value)+'</td><td>'+getAlertBadge(p.alertLevel)+'</td></tr>';
+  }).join('');
+}
+
+function openDetailNeon(name){
+  var html = renderProjectDetail(name, data);
+  document.getElementById('detailTitleNeon').textContent = name;
+  document.getElementById('detailBodyNeon').innerHTML = html.replace(/var\(--/g, '').replace(/#1e293b/g, '#0a0a10').replace(/#334155/g, '#00ffff');
+  document.getElementById('detailModalNeon').classList.add('active');
+  document.getElementById('detailModalNeon').style.display = 'flex';
+}
+
+function sortNeon(dir){renderSellNeon(dir);}
+function exportAllNeon(){exportToCSV('stuckTableNeon','neon-vuong');exportToCSV('regionTableNeon','neon-region');exportToCSV('sellTableNeon','neon-sell');alert('Đã xuất 3 file!');}
+
+document.addEventListener('DOMContentLoaded', function(){enrichProjectData(data.topProjects);initNeon();});
 </script>
 </body>
 </html>

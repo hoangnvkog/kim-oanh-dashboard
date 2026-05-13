@@ -3,8 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Minimalist — Tồn Kho</title>
+<title>Minimalist — Full Dashboard</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <script src="../data.js"></script>
+<script src="../dashboard-shared.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
@@ -12,15 +14,24 @@ body{font-family:'Inter',sans-serif;background:#fff;color:#1a1a1a;min-height:100
 .header{text-align:center;padding:80px 24px 40px}
 .header h1{font-size:48px;font-weight:700;margin-bottom:16px;letter-spacing:-1px}
 .header p{font-size:18px;color:#666;margin-bottom:32px}
-.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:24px;max-width:900px;margin:0 auto;padding:0 24px}
-.kpi-card{background:#f9f9f9;border:1px solid #eee;border-radius:16px;padding:32px;text-align:center;transition:transform 0.2s}
-.kpi-card:hover{transform:translateY(-4px)}
+.container{max-width:1200px;margin:0 auto;padding:0 24px}
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:24px;margin-bottom:40px}
+.kpi-card{background:#f9f9f9;border:1px solid #eee;border-radius:16px;padding:32px;text-align:center;transition:all 0.2s;position:relative}
+.kpi-card:hover{transform:translateY(-4px);box-shadow:0 10px 40px rgba(0,0,0,0.08)}
 .kpi-value{font-size:40px;font-weight:700;color:#1a1a1a;margin-bottom:8px}
 .kpi-label{font-size:13px;color:#888;text-transform:uppercase;letter-spacing:1px}
-table{width:100%;max-width:900px;margin:40px auto;border-collapse:collapse;font-size:14px}
-th{padding:16px;border-bottom:2px solid #1a1a1a;font-size:12px;text-transform:uppercase;text-align:left}
+.kpi-alert{position:absolute;top:-8px;right:12px;background:#EF4444;color:#fff;font-size:11px;padding:4px 10px;border-radius:20px;font-weight:600}
+.btn-minimal{padding:8px 16px;border-radius:8px;border:1px solid #1a1a1a;background:#fff;color:#1a1a1a;cursor:pointer;font-size:14px;transition:all 0.2s;margin:2px}
+.btn-minimal:hover{background:#1a1a1a;color:#fff}
+.btn-active{background:#1a1a1a;color:#fff}
+.table-section{background:#fff;border:1px solid #eee;border-radius:16px;padding:32px;margin:24px 0}
+.table-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;flex-wrap:wrap;gap:12px}
+.table-title{font-size:18px;font-weight:600}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th{padding:16px;border-bottom:2px solid #1a1a1a;font-size:12px;text-transform:uppercase;text-align:left;font-weight:600}
 td{padding:16px;border-bottom:1px solid #eee}
-tr:hover{background:#f9f9f9}
+tr:hover{background:#f9f9f9;cursor:pointer}
+.alert-row td{background:rgba(239,68,68,0.05)!important}
 .spotlight{position:fixed;bottom:24px;right:24px;background:#1a1a1a;color:#fff;padding:12px 24px;border-radius:12px;font-size:13px;cursor:pointer;box-shadow:0 10px 40px rgba(0,0,0,0.15)}
 .spotlight-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.4);display:none;z-index:999}
 .spotlight-modal{position:fixed;top:15%;left:50%;transform:translateX(-50%);width:600px;max-width:90%;background:#fff;border-radius:16px;padding:24px;display:none;z-index:1000;box-shadow:0 25px 50px -12px rgba(0,0,0,0.25)}
@@ -29,44 +40,190 @@ tr:hover{background:#f9f9f9}
 .spotlight-results{max-height:300px;overflow-y:auto}
 .spotlight-item{padding:10px 12px;border-radius:6px;cursor:pointer;font-size:14px;color:#1a1a1a}
 .spotlight-item:hover{background:#f5f5f5}
+.compare-bar{background:#f0f0f0;border:1px dashed #1a1a1a;border-radius:12px;padding:12px;margin:16px 0;display:none;align-items:center;gap:12px;flex-wrap:wrap}
+.compare-bar.active{display:flex}
 @media(max-width:768px){.header h1{font-size:32px}}
 </style>
 </head>
 <body>
-<div class="header"><h1>Tồn Kho</h1><p>Báo cáo 20 dự án</p></div>
-<div class="kpi-grid" id="kpi"></div>
-<table><thead><tr><th>Dự án</th><th>Khu vực</th><th>SP</th><th>Giá trị (tỷ)</th><th>%</th></tr></thead><tbody id="tbl"></tbody></table>
+<div class="header"><h1>Tồn Kho — Minimalist</h1><p>5 Dashboard • Drill-down • Compare • Alert • Export</p></div>
+<div class="container">
+  <!-- Compare Bar -->
+  <div class="compare-bar" id="compareBarMin">
+    <span style="font-weight:600">So sánh:</span>
+    <span id="cmp1" class="badge" style="background:#1a1a1a;color:#fff;cursor:pointer;padding:4px 10px;border-radius:6px">Chọn 1</span>
+    <span>vs</span>
+    <span id="cmp2" class="badge" style="background:#1a1a1a;color:#fff;cursor:pointer;padding:4px 10px;border-radius:6px">Chọn 2</span>
+    <button class="btn-minimal" onclick="runCompareMin()">🔍 So sánh</button>
+    <button class="btn-minimal" onclick="clearCompareMin()">✕</button>
+  </div>
+
+  <!-- KPI -->
+  <div class="kpi-grid" id="kpi"></div>
+
+  <!-- C.1: Vướng mắc chi tiết -->
+  <div class="table-section">
+    <div class="table-header">
+      <span class="table-title">⚠️ Vướng mắc chi tiết</span>
+      <div>
+        <button class="btn-minimal" onclick="exportToCSV('stuckTableMin','min-vuong')">📥 CSV</button>
+        <button class="btn-minimal" onclick="printTable('stuckTableMin')">🖨️ In</button>
+      </div>
+    </div>
+    <table id="stuckTableMin">
+      <thead><tr><th>Dự án</th><th>Khu vực</th><th>Tổng SP</th><th>Vướng</th><th>% Vướng</th><th>GT Vướng</th><th>Cảnh báo</th></tr></thead>
+      <tbody id="stuckBodyMin"></tbody>
+    </table>
+  </div>
+
+  <!-- C.2: So sánh khu vực -->
+  <div class="table-section">
+    <div class="table-header">
+      <span class="table-title">🗺️ So sánh khu vực</span>
+      <button class="btn-minimal" onclick="exportToCSV('regionTableMin','min-region')">📥 CSV</button>
+    </div>
+    <table id="regionTableMin">
+      <thead><tr><th>Chỉ số</th><th>Đồng Nai</th><th>Bình Dương</th><th>TP.HCM</th><th>Chênh lệch ĐN-BD</th></tr></thead>
+      <tbody id="regionBodyMin"></tbody>
+    </table>
+  </div>
+
+  <!-- C.3: Dự án theo sell-through -->
+  <div class="table-section">
+    <div class="table-header">
+      <span class="table-title">📈 Dự án theo Sell-through (Click để drill-down)</span>
+      <div>
+        <button class="btn-minimal" onclick="sortMin('asc')">⬆️ Thấp đến cao</button>
+        <button class="btn-minimal" onclick="sortMin('desc')">⬇️ Cao đến thấp</button>
+        <button class="btn-minimal" onclick="toggleCompareMin()">🔄 So sánh</button>
+        <button class="btn-minimal" onclick="exportToCSV('sellTableMin','min-sell')">📥 CSV</button>
+      </div>
+    </div>
+    <table id="sellTableMin">
+      <thead><tr><th>#</th><th>Dự án</th><th>Khu vực</th><th>Sell-through</th><th>Đã bán</th><th>Chưa bán</th><th>Tồn</th><th>Giá trị</th><th>Trạng thái</th><th>Đề xuất</th></tr></thead>
+      <tbody id="sellBodyMin"></tbody>
+    </table>
+  </div>
+
+  <!-- Export All -->
+  <div style="text-align:center;margin:40px 0">
+    <button class="btn-minimal" style="padding:12px 32px;font-size:16px;background:#1a1a1a;color:#fff" onclick="exportAllMin()">📥 Xuất toàn bộ báo cáo</button>
+  </div>
+</div>
+
+<!-- Spotlight -->
 <div class="spotlight" id="spotlightBtn">⌘K Spotlight</div>
 <div class="spotlight-overlay" id="spotlightOverlay"></div>
-<div class="spotlight-modal" id="spotlightModal"><input class="spotlight-input" placeholder="Tìm kiếm dự án, khu vực..." id="spotlightInput"><div class="spotlight-results" id="spotlightResults"></div></div>
+<div class="spotlight-modal" id="spotlightModal">
+  <input class="spotlight-input" placeholder="Tìm kiếm dự án, khu vực..." id="spotlightInput">
+  <div class="spotlight-results" id="spotlightResults"></div>
+</div>
+
+<!-- Detail Modal -->
+<div class="dash-modal" id="detailModalMin" style="display:none">
+  <div class="dash-modal-overlay" onclick="closeModal('detailModalMin')" style="position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.4);z-index:999"></div>
+  <div class="dash-modal-content" style="position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#fff;border:1px solid #eee;border-radius:16px;max-width:700px;width:90%;max-height:80vh;overflow-y:auto;z-index:1000;box-shadow:0 25px 50px rgba(0,0,0,0.25)">
+    <div style="padding:20px;border-bottom:1px solid #eee;display:flex;justify-content:space-between;align-items:center"><h3 id="detailTitleMin">Chi tiết</h3><button onclick="closeModal('detailModalMin')" style="background:none;border:none;font-size:24px;cursor:pointer">&times;</button></div>
+    <div style="padding:20px" id="detailBodyMin"></div>
+  </div>
+</div>
+
 <script>
-document.addEventListener('DOMContentLoaded', function(){
-document.getElementById('kpi').innerHTML='<div class="kpi-card"><div class="kpi-value">'+fmtVND(inventoryData.total.value)+'</div><div class="kpi-label">Tổng giá trị</div></div>'+
-'<div class="kpi-card"><div class="kpi-value">'+fmtNum(inventoryData.total.products)+'</div><div class="kpi-label">Sản phẩm</div></div>'+
-'<div class="kpi-card"><div class="kpi-value">'+inventoryData.total.sellThroughRate+'%</div><div class="kpi-label">Sell-through Rate</div></div>'+
-'<div class="kpi-card"><div class="kpi-value">'+inventoryData.total.stuck+'</div><div class="kpi-label">Vướng mắc</div></div>';
-function renderTable(filter){
-var filtered = filter ? inventoryData.topProjects.filter(function(p){return p.name.toLowerCase().includes(filter.toLowerCase()) || p.area.toLowerCase().includes(filter.toLowerCase());}) : inventoryData.topProjects;
-document.getElementById('tbl').innerHTML=filtered.map(function(p){return '<tr><td>'+p.name+'</td><td>'+p.area+'</td><td>'+fmtNum(p.products)+'</td><td>'+fmtVND(p.value)+'</td><td>'+p.percentage+'%</td></tr>';}).join('');
+var data = cloneData();
+enrichProjectData(data.topProjects);
+var compareMin = [];
+
+function renderKPIMin(){
+  var t = data.total;
+  var stuckRate = (t.stuck / t.products * 100).toFixed(1);
+  var alertStuck = stuckRate > 10 ? '⚠️ Cao' : '✓ Thấp';
+  var html = '<div class="kpi-card" style="border-top:3px solid #3B82F6"><div class="kpi-label">Tổng giá trị</div><div class="kpi-value">' + fmtVND(t.value) + '</div></div>';
+  html += '<div class="kpi-card" style="border-top:3px solid #10B981"><div class="kpi-label">Tổng SP</div><div class="kpi-value">' + fmtNum(t.products) + '</div></div>';
+  html += '<div class="kpi-card" style="border-top:3px solid #F59E0B"><div class="kpi-label">Sell-through</div><div class="kpi-value" style="color:' + (t.sellThroughRate<30?'#EF4444':'#1a1a1a') + '">' + t.sellThroughRate + '%</div></div>';
+  html += '<div class="kpi-card" style="border-top:3px solid #EF4444">' + (stuckRate>10?'<span class="kpi-alert">!</span>':'') + '<div class="kpi-label">Vướng mắc</div><div class="kpi-value">' + t.stuck + ' <small>(' + stuckRate + '%)</small></div></div>';
+  document.getElementById('kpi').innerHTML = html;
 }
-renderTable();
- document.getElementById('spotlightBtn').addEventListener('click', function(){
+
+function renderStuckMin(){
+  document.getElementById('stuckBodyMin').innerHTML = data.topProjects.slice().sort(function(a,b){return b.stuckPct-a.stuckPct;}).map(function(p){
+    return '<tr class="'+(p.stuckPct>10?'alert-row':'')+'" onclick="openDetailMin(\''+p.name+'\')">'+
+      '<td><strong>'+p.name+'</strong></td><td>'+p.area+'</td><td>'+fmtNum(p.products)+'</td>'+
+      '<td>'+p.stuck+'</td><td style="color:'+(p.stuckPct>10?'#EF4444':'#10B981')+'">'+p.stuckPct+'%</td>'+
+      '<td>'+fmtVND(p.stuckValue)+'</td><td>'+getAlertBadge(p.stuckLevel)+'</td></tr>';
+  }).join('');
+}
+
+function renderRegionMin(){
+  var labels = [{l:'Dự án',k:'projects'},{l:'SP',k:'products'},{l:'Giá trị',k:'value',fmt:fmtVND},{l:'Sell-through %',k:'sellThroughRate',fmt:function(v){return v+'%';}}];
+  document.getElementById('regionBodyMin').innerHTML = labels.map(function(r){
+    var dn = data.regions[0][r.k], bd = data.regions[1][r.k], tphcm = data.regions[2][r.k];
+    var diff = (typeof dn === 'number' && typeof bd === 'number') ? (dn - bd).toFixed(1) : '—';
+    var f = r.fmt || function(v){return v;};
+    return '<tr><td><strong>'+r.l+'</strong></td><td>'+f(dn)+'</td><td>'+f(bd)+'</td><td>'+f(tphcm)+'</td>'+
+      '<td style="color:'+(diff>0?'#10B981':'#EF4444')+'">'+diff+'</td></tr>';
+  }).join('');
+}
+
+function renderSellMin(dir){
+  var sorted = data.topProjects.slice().sort(function(a,b){return dir==='asc'?a.sellThroughRate-b.sellThroughRate:b.sellThroughRate-a.sellThroughRate;});
+  document.getElementById('sellBodyMin').innerHTML = sorted.map(function(p,i){
+    return '<tr class="'+(p.alertLevel==='danger'?'alert-row':'')+'" onclick="openDetailMin(\''+p.name+'\')">'+
+      '<td>'+(i+1)+'</td><td><strong>'+p.name+'</strong></td><td>'+p.area+'</td>'+
+      '<td style="color:'+(p.sellThroughRate<30?'#EF4444':'#1a1a1a')+'">'+p.sellThroughRate+'%</td>'+
+      '<td>'+fmtNum(p.sold)+'</td><td>'+fmtNum(p.unsold)+'</td><td>'+fmtNum(p.products)+'</td>'+
+      '<td>'+fmtVND(p.value)+'</td><td>'+getAlertBadge(p.alertLevel)+'</td><td>'+p.action+'</td></tr>';
+  }).join('');
+}
+
+function openDetailMin(name){
+  var html = renderProjectDetail(name, data);
+  document.getElementById('detailTitleMin').textContent = name;
+  document.getElementById('detailBodyMin').innerHTML = html;
+  document.getElementById('detailModalMin').style.display = 'block';
+  document.getElementById('detailModalMin').classList.add('active');
+}
+
+function toggleCompareMin(){
+  var bar = document.getElementById('compareBarMin');
+  bar.classList.toggle('active');
+  compareMin = [];
+  if (bar.classList.contains('active')) alert('Click vào dự án để chọn so sánh. Chọn 2 dự án.');
+}
+
+function runCompareMin(){
+  if (compareMin.length < 2) return alert('Chọn 2 dự án');
+  var p1 = data.topProjects.find(function(x){return x.name===compareMin[0];});
+  var p2 = data.topProjects.find(function(x){return x.name===compareMin[1];});
+  alert('So sánh: '+p1.name+' vs '+p2.name+'\n\nSell-through: '+p1.sellThroughRate+'% vs '+p2.sellThroughRate+'%\nGiá trị: '+fmtVND(p1.value)+' vs '+fmtVND(p2.value));
+}
+
+function clearCompareMin(){compareMin=[];document.getElementById('compareBarMin').classList.remove('active');}
+
+function sortMin(dir){renderSellMin(dir);}
+
+function exportAllMin(){exportToCSV('stuckTableMin','min-vuong');exportToCSV('regionTableMin','min-region');exportToCSV('sellTableMin','min-sell');alert('Đã xuất 3 file!');}
+
+// Spotlight
+document.getElementById('spotlightBtn').addEventListener('click', function(){
   document.getElementById('spotlightModal').classList.add('active');
   document.getElementById('spotlightOverlay').classList.add('active');
   document.getElementById('spotlightInput').focus();
 });
-  document.getElementById('spotlightOverlay').addEventListener('click', function(){
-   document.getElementById('spotlightModal').classList.remove('active');
-   document.getElementById('spotlightOverlay').classList.remove('active');
-  });
-document.addEventListener('keydown',function(e){if(e.ctrlKey&&e.key==='k'){e.preventDefault();document.getElementById('spotlightModal').classList.toggle('active');document.getElementById('spotlightOverlay').classList.toggle('active');if(document.getElementById('spotlightModal').classList.contains('active'))document.getElementById('spotlightInput').focus();}});
-  document.getElementById('spotlightInput').addEventListener('input', function(e){
-   var q=e.target.value;
-   var results=inventoryData.topProjects.filter(function(p){return p.name.toLowerCase().includes(q.toLowerCase()) || p.area.toLowerCase().includes(q.toLowerCase());}).map(function(p){return '<div class="spotlight-item">'+p.name+' — '+p.area+' — '+fmtVND(p.value)+'</div>';}).join('');
-    document.getElementById('spotlightResults').innerHTML=results || '<div class="spotlight-item">Không tìm thấy</div>';
-   renderTable(q);
-  });
+document.getElementById('spotlightOverlay').addEventListener('click', function(){
+  document.getElementById('spotlightModal').classList.remove('active');
+  document.getElementById('spotlightOverlay').classList.remove('active');
 });
+document.getElementById('spotlightInput').addEventListener('input', function(e){
+  var q = e.target.value;
+  var results = data.topProjects.filter(function(p){return p.name.toLowerCase().includes(q.toLowerCase()) || p.area.toLowerCase().includes(q.toLowerCase());}).map(function(p){
+    return '<div class="spotlight-item">'+p.name+' — '+p.area+' — '+fmtVND(p.value)+'</div>';
+  }).join('');
+  document.getElementById('spotlightResults').innerHTML = results || '<div class="spotlight-item">Không tìm thấy</div>';
+});
+
+document.addEventListener('keydown', function(e){if((e.ctrlKey||e.metaKey)&&e.key==='k'){e.preventDefault();document.getElementById('spotlightModal').classList.toggle('active');document.getElementById('spotlightOverlay').classList.toggle('active');if(document.getElementById('spotlightModal').classList.contains('active'))document.getElementById('spotlightInput').focus();}});
+
+document.addEventListener('DOMContentLoaded', function(){renderKPIMin();renderStuckMin();renderRegionMin();renderSellMin('desc');});
 </script>
 </body>
 </html>

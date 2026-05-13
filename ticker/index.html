@@ -3,54 +3,44 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ticker Pro — Tồn Kho (Full)</title>
+<title>Ticker Pro — Full Dashboard</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <script src="../data.js"></script>
+<script src="../dashboard-shared.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-:root{--bg:#0f172a;--card:#1e293b;--text:#e2e8f0;--muted:#94a3b8;--accent:#3B82F6;--danger:#EF4444;--success:#10B981;--warning:#F59E0B}
-body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
-.ticker{background:var(--card);overflow:hidden;padding:12px 0;border-bottom:1px solid #334155}
+body{font-family:'Inter',sans-serif;background:#0f172a;color:#e2e8f0;min-height:100vh}
+.ticker{background:#1e293b;overflow:hidden;padding:12px 0;border-bottom:1px solid #334155}
 .ticker-inner{display:flex;animation:ticker 20s linear infinite;white-space:nowrap}
-.ticker-item{padding:0 32px;font-size:14px}.ticker-item .up{color:var(--success)}.ticker-item .down{color:var(--danger)}
+.ticker-item{padding:0 32px;font-size:14px}.ticker-item .up{color:#10B981}.ticker-item .down{color:#EF4444}
 @keyframes ticker{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
 .container{max-width:1400px;margin:0 auto;padding:24px}
 .kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin:24px 0}
-.kpi-card{background:var(--card);border:1px solid #334155;border-radius:12px;padding:20px;text-align:center;position:relative}
+.kpi-card{background:#1e293b;border:1px solid #334155;border-radius:12px;padding:20px;text-align:center;position:relative}
 .kpi-value{font-size:32px;font-weight:700}
-.kpi-label{font-size:12px;color:var(--muted);text-transform:uppercase;margin-bottom:8px}
-.filter-bar, .export-bar{display:flex;gap:8px;margin:16px 0;flex-wrap:wrap}
-.filter-btn, .action-btn, .export-btn{padding:6px 12px;border-radius:6px;border:1px solid #334155;background:var(--card);color:var(--muted);cursor:pointer;font-size:13px;transition:.2s}
-.filter-btn.active, .action-btn:hover, .export-btn:hover{background:var(--accent);border-color:var(--accent);color:#fff}
-table{width:100%;border-collapse:collapse;margin-top:16px;font-size:14px}
-th{padding:12px;color:var(--muted);border-bottom:1px solid #334155;font-size:12px;text-transform:uppercase;text-align:left}
+.kpi-label{font-size:12px;color:#94a3b8;text-transform:uppercase;margin-bottom:8px}
+.filter-bar,.export-bar{display:flex;gap:8px;margin:16px 0;flex-wrap:wrap}
+.filter-btn,.action-btn,.export-btn{padding:6px 12px;border-radius:6px;border:1px solid #334155;background:#1e293b;color:#94a3b8;cursor:pointer;font-size:13px;transition:.2s}
+.filter-btn.active,.action-btn:hover,.export-btn:hover{background:#3B82F6;color:#fff;border-color:#3B82F6}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th{padding:12px;color:#94a3b8;border-bottom:1px solid #334155;font-size:12px;text-transform:uppercase;text-align:left}
 td{padding:12px;border-bottom:1px solid #1e293b}
 tr:hover td{background:#1e293b;cursor:pointer}
 .alert-row td{background:rgba(239,68,68,0.1)!important}
-.inline-spark{display:flex;align-items:flex-end;height:24px;gap:1px;width:80px}.inline-spark div{flex:1;background:#10B981;border-radius:1px;min-height:2px}
+.inline-spark{display:flex;align-items:flex-end;height:24px;gap:1px;width:80px}
+.inline-spark div{flex:1;background:#10B981;border-radius:1px;min-height:2px}
 .badge{display:inline-block;padding:3px 8px;border-radius:6px;font-size:12px;font-weight:600}
-.badge-danger{background:var(--danger);color:#fff}.badge-warning{background:var(--warning);color:#000}.badge-success{background:var(--success);color:#fff}
+.badge-danger{background:#EF4444;color:#fff}.badge-warning{background:#F59E0B;color:#000}.badge-success{background:#10B981;color:#fff}
 .compare-bar{background:rgba(59,130,246,0.1);border:1px dashed #3B82F6;border-radius:12px;padding:12px;margin:16px 0;display:none;align-items:center;gap:12px;flex-wrap:wrap}
 .compare-bar.active{display:flex}
-.modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);z-index:100;align-items:center;justify-content:center;padding:24px}
-.modal.active{display:flex}
-.modal-content{background:var(--card);border:1px solid #334155;border-radius:16px;max-width:700px;width:100%;max-height:90vh;overflow-y:auto}
-.modal-header{padding:20px;border-bottom:1px solid #334155;display:flex;justify-content:space-between;align-items:center}
-.modal-body{padding:20px}
-.modal-close{background:none;border:none;color:var(--text);font-size:24px;cursor:pointer}
-.project-detail{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin:16px 0}
-.detail-item{background:rgba(255,255,255,0.03);padding:12px;border-radius:8px}
-.detail-label{font-size:12px;color:var(--muted);text-transform:uppercase;margin-bottom:4px}
-.detail-value{font-size:18px;font-weight:700}
-.table-section{background:var(--card);border:1px solid #334155;border-radius:16px;padding:20px;margin-bottom:24px}
+.table-section{background:#1e293b;border:1px solid #334155;border-radius:16px;padding:20px;margin:24px 0}
 .table-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:12px}
-.table-title{font-size:18px;font-weight:600}
+.table-title{font-size:16px;font-weight:600}
+@media(max-width:768px){.ticker-inner{animation-duration:10s}}
 </style>
 </head>
 <body>
-
-<!-- Ticker -->
 <div class="ticker"><div class="ticker-inner" id="ticker"></div></div>
 
 <div class="container">
@@ -58,18 +48,21 @@ tr:hover td{background:#1e293b;cursor:pointer}
 <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
   <h1>📊 Ticker Pro Analytics</h1>
   <div class="filter-bar">
-    <button class="filter-btn active">Tất cả</button>
-    <button class="filter-btn">YTD</button>
-    <button class="filter-btn">Q1</button>
-    <button class="filter-btn">Q2</button>
+    <button class="filter-btn active" data-period="all">Tất cả</button>
+    <button class="filter-btn" data-period="ytd">YTD</button>
+    <button class="filter-btn" data-period="q1">Q1</button>
+    <button class="filter-btn" data-period="q2">Q2</button>
   </div>
 </div>
 
-<!-- Compare Bar -->
+<!-- Compare -->
 <div class="compare-bar" id="compareBar">
   <span>So sánh:</span>
-  <span id="cmp1" class="badge" style="cursor:pointer">Chọn 1</span><span>vs</span><span id="cmp2" class="badge" style="cursor:pointer">Chọn 2</span>
-  <button class="action-btn" onclick="runCompare()">🔍 So sánh</button><button class="action-btn" onclick="endCompare()">✕</button>
+  <span id="cmp1" class="badge" style="cursor:pointer;background:#3B82F6;color:#fff">Chọn 1</span>
+  <span>vs</span>
+  <span id="cmp2" class="badge" style="cursor:pointer;background:#3B82F6;color:#fff">Chọn 2</span>
+  <button class="action-btn" onclick="runCompare()">🔍 So sánh</button>
+  <button class="action-btn" onclick="clearCompare()">✕</button>
 </div>
 
 <!-- KPI -->
@@ -82,15 +75,15 @@ tr:hover td{background:#1e293b;cursor:pointer}
   <button class="filter-btn" onclick="filterArea('Bình Dương')">Bình Dương</button>
 </div>
 
-<!-- Main Table -->
+<!-- Render All Tables inline for Ticker -->
 <div class="table-section">
   <div class="table-header">
     <span class="table-title">📈 Dự án theo Sell-through</span>
     <div>
-      <button class="action-btn" onclick="sortProjects('asc')">⬆️ Thấp → Cao</button>
-      <button class="action-btn" onclick="sortProjects('desc')">⬇️ Cao → Thấp</button>
+      <button class="action-btn" onclick="sortTicker('asc')">⬆️ Thấp → Cao</button>
+      <button class="action-btn" onclick="sortTicker('desc')">⬇️ Cao → Thấp</button>
       <button class="action-btn" onclick="toggleCompare()">🔄 So sánh</button>
-      <button class="export-btn" onclick="exportTable()">📥 CSV</button>
+      <button class="export-btn" onclick="exportMain()">📥 CSV</button>
     </div>
   </div>
   <table id="mainTable">
@@ -99,7 +92,7 @@ tr:hover td{background:#1e293b;cursor:pointer}
   </table>
 </div>
 
-<!-- Stuck Detail -->
+<!-- Stuck -->
 <div class="table-section">
   <div class="table-header">
     <span class="table-title">⚠️ Chi tiết vướng mắc</span>
@@ -111,160 +104,113 @@ tr:hover td{background:#1e293b;cursor:pointer}
   </table>
 </div>
 
-<!-- Region Comparison Mini -->
+<!-- Region -->
 <div class="table-section">
   <div class="table-header">
     <span class="table-title">🗺️ So sánh khu vực</span>
   </div>
-  <table id="regionMini">
-    <thead><tr><th>Chỉ số</th><th>Đồng Nai</th><th>Bình Dương</th><th>Chênh lệch</th></tr></thead>
-    <tbody id="regionMiniBody"></tbody>
+  <table>
+    <thead><tr><th>Chỉ số</th><th>Đồng Nai</th><th>Bình Dương</th><th>TP.HCM</th><th>Chênh lệch ĐN-BD</th></tr></thead>
+    <tbody id="regionBody"></tbody>
   </table>
 </div>
 
-<!-- Export All -->
+<!-- Export -->
 <div style="text-align:center;margin:32px 0">
-  <button class="export-btn" style="padding:12px 32px;font-size:16px;background:var(--accent);border-color:var(--accent);color:#fff" onclick="exportAll()">📥 Xuất báo cáo đầy đủ</button>
+  <button class="action-btn" style="padding:12px 32px;font-size:16px;background:#3B82F6" onclick="exportAllTicker()">📥 Xuất toàn bộ báo cáo</button>
 </div>
-
-</div>
-
-<!-- Compare Modal -->
-<div class="modal" id="compareModal">
-  <div class="modal-content">
-    <div class="modal-header"><h3>🔍 So sánh chi tiết</h3><button class="modal-close" onclick="closeCompare()">&times;</button></div>
-    <div class="modal-body" id="compareBody"></div>
-  </div>
 </div>
 
 <!-- Detail Modal -->
-<div class="modal" id="detailModal">
-  <div class="modal-content">
-    <div class="modal-header"><h3 id="detailTitle">Chi tiết</h3><button class="modal-close" onclick="closeDetail()">&times;</button></div>
-    <div class="modal-body" id="detailBody"></div>
+<div class="dash-modal" id="detailModal">
+  <div class="dash-modal-overlay" onclick="closeModal('detailModal')"></div>
+  <div class="dash-modal-content" style="background:#1e293b;border-color:#334155">
+    <div class="dash-modal-header"><h3 id="detailTitle">Chi tiết</h3><button onclick="closeModal('detailModal')" style="background:none;border:none;color:#fff;font-size:24px;cursor:pointer">&times;</button></div>
+    <div class="dash-modal-body" id="detailBody"></div>
   </div>
 </div>
 
 <script>
-var data = JSON.parse(JSON.stringify(inventoryData));
-var cmpList = [];
-
-// Derived fields
-data.topProjects.forEach(function(p){
-  p.stuckPct = p.products ? ((p.stuck||0)/p.products*100).toFixed(1) : 0;
-  p.stuckValuePct = p.value ? ((p.stuckValue||0)/p.value*100).toFixed(1) : 0;
-  if(p.sellThroughRate<20){p.alert='danger';p.action='Cần đẩy mạnh';}
-  else if(p.sellThroughRate<35){p.alert='warning';p.action='Theo dõi';}
-  else{p.alert='success';p.action='Tốt';}
-});
+var data = cloneData();
+enrichProjectData(data.topProjects);
+var allProjects = data.topProjects;
+var compareList = [];
 
 function renderKPI(){
-  var t=data.total;
-  var stuckRate=(t.stuck/t.products*100).toFixed(1);
+  var t = data.total;
+  var stuckRate = (t.stuck/t.products*100).toFixed(1);
   document.getElementById('kpi').innerHTML=
     '<div class="kpi-card"><div class="kpi-label">Tổng giá trị</div><div class="kpi-value">'+fmtVND(t.value)+'</div></div>'+
     '<div class="kpi-card"><div class="kpi-label">Tổng SP</div><div class="kpi-value">'+fmtNum(t.products)+'</div></div>'+
-    '<div class="kpi-card"><div class="kpi-label">Sell-through Rate</div><div class="kpi-value" style="color:'+(t.sellThroughRate<30?'var(--danger)':'var(--success)')+'">'+t.sellThroughRate+'%</div></div>'+
-    '<div class="kpi-card"><div class="kpi-label">SP Vướng mắc</div><div class="kpi-value" style="color:'+(stuckRate>10?'var(--danger)':'var(--warning)')+'">'+t.stuck+' ('+stuckRate+'%)</div></div>';
+    '<div class="kpi-card"><div class="kpi-label">Sell-through</div><div class="kpi-value" style="color:'+(t.sellThroughRate<30?'#EF4444':'')+'">'+t.sellThroughRate+'%</div></div>'+
+    '<div class="kpi-card"><div class="kpi-label">SP Vướng mắc</div><div class="kpi-value" style="color:'+(stuckRate>10?'#EF4444':'')+'">'+t.stuck+' ('+stuckRate+'%)</div></div>';
 }
 
-function renderMain(filter){
-  var projects=filter==='all'?data.topProjects:data.topProjects.filter(function(p){return p.area===filter;});
-  document.getElementById('ticker').innerHTML=projects.map(function(p){
+function renderTicker(filter){
+  var filtered = filter==='all'?allProjects:allProjects.filter(function(p){return p.area===filter;});
+  document.getElementById('ticker').innerHTML=filtered.map(function(p){
     return '<span class="ticker-item"><b>'+p.name+'</b> '+fmtVND(p.value)+' <span class="'+(p.sellThroughRate>30?'up':'down')+'">'+p.sellThroughRate+'%</span></span>';
-  }).join('')+projects.map(function(p){
+  }).join('')+filtered.map(function(p){
     return '<span class="ticker-item"><b>'+p.name+'</b> '+fmtVND(p.value)+' <span class="'+(p.sellThroughRate>30?'up':'down')+'">'+p.sellThroughRate+'%</span></span>';
   }).join('');
-  
-  document.getElementById('mainBody').innerHTML=projects.map(function(p,i){
-    return '<tr class="'+(p.alert==='danger'?'alert-row':'')+'" onclick="openDetail(\''+p.name+'\')">'+
-      '<td>#'+(i+1)+'</td><td><strong>'+p.name+'</strong></td><td>'+p.area+'</td>'+
+  document.getElementById('mainBody').innerHTML=filtered.map(function(p,i){
+    return '<tr class="'+(p.alertLevel==='danger'?'alert-row':'')+'" onclick="openDetail(\''+p.name+'\')">'+
+      '<td>'+(i+1)+'</td><td><strong>'+p.name+'</strong></td><td>'+p.area+'</td>'+
       '<td>'+fmtVND(p.value)+'</td>'+
-      '<td style="color:'+(p.sellThroughRate<30?'var(--danger)':'var(--success)')+'">'+p.sellThroughRate+'%</td>'+
+      '<td style="color:'+(p.sellThroughRate<30?'#EF4444':'#10B981')+'">'+p.sellThroughRate+'%</td>'+
       '<td>'+fmtNum(p.products)+'</td>'+
       '<td>'+(p.stuck||0)+' <small>('+(p.stuckPct||0)+'%)</small></td>'+
-      '<td><span class="badge badge-'+(p.alert)+'">'+(p.alert==='danger'?'⚠️':'')+' '+p.sellThroughRate+'%</span></td>'+
+      '<td>'+getAlertBadge(p.alertLevel)+'</td>'+
       '<td><div class="inline-spark">'+Array(7).fill(0).map(function(){return'<div style="height:'+(20+Math.random()*80)+'%">';}).join('')+'</div></td></tr>';
   }).join('');
 }
 
 function renderStuck(){
   document.getElementById('stuckBody').innerHTML=data.topProjects.slice().sort(function(a,b){return b.stuckPct-a.stuckPct;}).map(function(p){
-    return '<tr onclick="openDetail(\''+p.name+'\')"><td><strong>'+p.name+'</strong></td><td>'+p.area+'</td><td>'+(p.stuck||0)+'</td>'+
-      '<td style="color:'+(p.stuckPct>10?'var(--danger)':'var(--success)')+'">'+p.stuckPct+'%</td>'+
-      '<td>'+(p.stuckValue?fmtVND(p.stuckValue):'—')+'</td>'+
-      '<td><span class="badge badge-'+(p.stuckPct>10?"danger":p.stuckPct>5?"warning":"success")+'">'+(p.stuckPct>10?'Cao':'Thấp')+'</span></td></tr>';
+    return '<tr onclick="openDetail(\''+p.name+'\')">'+
+      '<td><strong>'+p.name+'</strong></td><td>'+p.area+'</td>'+
+      '<td>'+(p.stuck||0)+'</td>'+
+      '<td style="color:'+(p.stuckPct>10?'#EF4444':'#10B981')+'">'+p.stuckPct+'%</td>'+
+      '<td>'+fmtVND(p.stuckValue||0)+'</td>'+
+      '<td>'+getAlertBadge(p.stuckLevel)+'</td></tr>';
   }).join('');
 }
 
-function renderRegionMini(){
-  var dn=data.regions[0], bd=data.regions[1];
-  document.getElementById('regionMiniBody').innerHTML=[
-    {l:'Dự án',dn:dn.projects,bd:bd.projects},
-    {l:'Sản phẩm',dn:dn.products,bd:bd.products},
-    {l:'Giá trị',dn:fmtVND(dn.value),bd:fmtVND(bd.value),diff:''},
-    {l:'Sell-through',dn:dn.sellThroughRate+'%',bd:bd.sellThroughRate+'%',diff:(dn.sellThroughRate-bd.sellThroughRate).toFixed(1)+'%'}
-  ].map(function(r){return'<tr><td><strong>'+r.l+'</strong></td><td>'+r.dn+'</td><td>'+r.bd+'</td><td style="color:'+(r.diff>0?'var(--success)':'var(--danger)')+'">'+(r.diff||'')+'</td></tr>';}).join('');
+function renderRegion(){
+  var labels = [{l:'Dự án',k:'projects'},{l:'SP',k:'products'},{l:'Giá trị',k:'value',fmt:fmtVND},{l:'Sell-through %',k:'sellThroughRate',fmt:function(v){return v+'%';}}];
+  document.getElementById('regionBody').innerHTML=labels.map(function(r){
+    var dn=data.regions[0][r.k],bd=data.regions[1][r.k],tphcm=data.regions[2][r.k];
+    var diff=(typeof dn==='number'&&typeof bd==='number')?(dn-bd).toFixed(1):'—';
+    var f=r.fmt||function(v){return v;};
+    return '<tr><td><strong>'+r.l+'</strong></td><td>'+f(dn)+'</td><td>'+f(bd)+'</td><td>'+f(tphcm)+'</td><td style="color:'+(diff>0?'#10B981':'#EF4444')+'">'+diff+'</td></tr>';
+  }).join('');
 }
 
-// Compare
-function toggleCompare(){document.getElementById('compareBar').classList.toggle('active');cmpList=[];}
-function runCompare(){
-  if(cmpList.length<2){alert('Chọn 2 dự án');return;}
-  var p1=data.topProjects.find(function(x){return x.name===cmpList[0];});
-  var p2=data.topProjects.find(function(x){return x.name===cmpList[1];});
-  document.getElementById('compareBody').innerHTML=
-    '<table><tr><th></th><th>'+p1.name+'</th><th>'+p2.name+'</th></tr>'+
-    '<tr><td>Khu vực</td><td>'+p1.area+'</td><td>'+p2.area+'</td></tr>'+
-    '<tr><td>Sell-through</td><td>'+p1.sellThroughRate+'%</td><td>'+p2.sellThroughRate+'%</td></tr>'+
-    '<tr><td>Giá trị</td><td>'+fmtVND(p1.value)+'</td><td>'+fmtVND(p2.value)+'</td></tr>'+
-    '<tr><td>SP</td><td>'+p1.products+'</td><td>'+p2.products+'</td></tr>'+
-    '</table>';
-  document.getElementById('compareModal').classList.add('active');
-}
-function closeCompare(){document.getElementById('compareModal').classList.remove('active');}
-
-// Detail
 function openDetail(name){
-  var p=data.topProjects.find(function(x){return x.name===name;});
-  document.getElementById('detailTitle').textContent=p.name;
-  document.getElementById('detailBody').innerHTML=
-    '<div class="project-detail">'+
-    '<div class="detail-item"><div class="detail-label">Khu vực</div><div class="detail-value">'+p.area+'</div></div>'+
-    '<div class="detail-item"><div class="detail-label">Tổng SP</div><div class="detail-value">'+p.products+'</div></div>'+
-    '<div class="detail-item"><div class="detail-label">Giá trị</div><div class="detail-value">'+fmtVND(p.value)+'</div></div>'+
-    '<div class="detail-item"><div class="detail-label">Đã bán</div><div class="detail-value" style="color:var(--success)">'+(p.sold||0)+'</div></div>'+
-    '<div class="detail-item"><div class="detail-label">Chưa bán</div><div class="detail-value" style="color:var(--warning)">'+(p.unsold||0)+'</div></div>'+
-    '<div class="detail-item"><div class="detail-label">Sell-through</div><div class="detail-value" style="color:'+(p.sellThroughRate<30?'var(--danger)':'var(--success)')+'">'+p.sellThroughRate+'%</div></div>'+
-    '<div class="detail-item"><div class="detail-label">SP vướng</div><div class="detail-value" style="color:var(--danger)">'+(p.stuck||0)+'</div></div>'+
-    '<div class="detail-item"><div class="detail-label">Giá trị/SP</div><div class="detail-value">'+(p.avgValue||'—')+' tỷ</div></div>'+
-    '</div>'+
-    '<div style="margin-top:16px"><strong>Hành động:</strong> '+p.action+'</div>';
+  var html=renderProjectDetail(name,data);
+  document.getElementById('detailTitle').textContent=name;
+  document.getElementById('detailBody').innerHTML=html;
   document.getElementById('detailModal').classList.add('active');
 }
-function closeDetail(){document.getElementById('detailModal').classList.remove('active');}
 
-// Filter
-function filterArea(area){
-  document.querySelectorAll('.filter-bar .filter-btn').forEach(function(b){b.classList.remove('active');});
-  event.target.classList.add('active');
-  renderMain(area);
-}
-
-// Sort
-function sortProjects(dir){
+function filterArea(area){renderTicker(area);}
+function sortTicker(dir){
   data.topProjects.sort(function(a,b){return dir==='asc'?a.sellThroughRate-b.sellThroughRate:b.sellThroughRate-a.sellThroughRate;});
-  renderMain('all');
+  renderTicker('all');
 }
 
-// Export
-function exportTable(){var rows=document.getElementById('mainTable').querySelectorAll('tr'),csv='data:text/csv;charset=utf-8,';rows.forEach(function(r){var d=[];r.querySelectorAll('td,th').forEach(function(c){d.push(c.textContent.trim());});csv+=d.join(',')+'\n';});var a=document.createElement('a');a.href=encodeURI(csv);a.download='du-an.csv';a.click();}
-function exportStuck(){var rows=document.querySelectorAll('table'),csv='';rows.forEach(function(t){t.querySelectorAll('tr').forEach(function(r){var d=[];r.querySelectorAll('td,th').forEach(function(c){d.push(c.textContent.trim());});csv+=d.join(',')+'\n';});});var a=document.createElement('a');a.href=encodeURI('data:text/csv;charset=utf-8,'+csv);a.download='vuong-mac.csv';a.click();}
-function exportAll(){exportTable();exportStuck();alert('Đã xuất!');}
+function toggleCompare(){document.getElementById('compareBar').classList.toggle('active');compareList=[];}
+function runCompare(){if(compareList.length<2){alert('Chọn 2 dự án');return;}var p1=data.topProjects.find(function(x){return x.name===compareList[0];}),p2=data.topProjects.find(function(x){return x.name===compareList[1];});alert('So sánh: '+p1.name+' vs '+p2.name+'\n\nSell-through: '+p1.sellThroughRate+'% vs '+p2.sellThroughRate+'%');}
+function clearCompare(){compareList=[];document.getElementById('compareBar').classList.remove('active');}
 
-// Init
-document.addEventListener('DOMContentLoaded',function(){renderKPI();renderMain('all');renderStuck();renderRegionMini();});
-document.querySelectorAll('.modal').forEach(function(m){m.addEventListener('click',function(e){if(e.target===this)this.classList.remove('active');});});
+function exportMain(){exportToCSV('mainTable','ticker-main');}
+function exportStuck(){var t=document.createElement('table');t.innerHTML=document.querySelectorAll('table')[1].outerHTML;document.body.appendChild(t);exportToCSV(t,'ticker-stuck');t.remove();}
+function exportAllTicker(){exportMain();exportStuck();alert('Đã xuất!');}
+
+// Time filter
+document.querySelectorAll('.filter-btn').forEach(function(btn){btn.addEventListener('click',function(){document.querySelectorAll('.filter-btn').forEach(function(b){b.classList.remove('active');});this.classList.add('active');});});
+
+document.addEventListener('DOMContentLoaded',function(){renderKPI();renderTicker('all');renderStuck();renderRegion();});
 </script>
 </body>
 </html>
