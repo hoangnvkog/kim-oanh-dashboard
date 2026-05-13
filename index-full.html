@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kim Oanh Dashboard — Full Analytics</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script src="data.js"></script>
+<style>
+:root{--bg:#0f172a;--card:#1e293b;--text:#e2e8f0;--muted:#94a3b8;--accent:#3B82F6;--danger:#EF4444;--success:#10B981;--warning:#F59E0B}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+.container{max-width:1400px;margin:0 auto;padding:24px}
+header{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;flex-wrap:wrap;gap:16px}
+header h1{font-size:24px;font-weight:700}
+
+/* Time Filter */
+.filter-bar{display:flex;gap:8px;flex-wrap:wrap}
+.filter-btn{padding:6px 16px;border-radius:8px;border:1px solid #334155;background:var(--card);color:var(--muted);cursor:pointer;font-size:13px;transition:.2s}
+.filter-btn:hover,.filter-btn.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+
+/* KPI */
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin-bottom:24px}
+.kpi-card{background:var(--card);border:1px solid #334155;border-radius:16px;padding:20px;text-align:center;position:relative;overflow:hidden}
+.kpi-value{font-size:32px;font-weight:700;color:var(--accent)}
+.kpi-label{font-size:12px;color:var(--muted);text-transform:uppercase;margin-bottom:8px}
+.kpi-alert{position:absolute;top:8px;right:8px;background:var(--danger);color:#fff;font-size:11px;padding:2px 8px;border-radius:12px;font-weight:600}
+
+/* Sections */
+.section{background:var(--card);border:1px solid #334155;border-radius:16px;padding:20px;margin-bottom:24px}
+.section-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:12px}
+.section-title{font-size:18px;font-weight:600}
+
+/* Tables */
+table{width:100%;border-collapse:collapse;font-size:14px}
+th{padding:12px;color:var(--muted);border-bottom:1px solid #334155;font-size:12px;text-align:left;text-transform:uppercase}
+td{padding:12px;border-bottom:1px solid rgba(255,255,255,0.05)}
+tr:hover td{background:rgba(255,255,255,0.03);cursor:pointer}
+.alert-row td{background:rgba(239,68,68,0.1)!important}
+.stuck-pct{font-weight:bold}
+.stuck-pct.high{color:var(--danger)}
+.stuck-pct.medium{color:var(--warning)}
+.stuck-pct.low{color:var(--success)}
+
+/* Alerts */
+.alert-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:12px;font-size:12px;font-weight:600}
+.alert-danger{background:rgba(239,68,68,0.2);color:var(--danger)}
+.alert-warning{background:rgba(245,158,11,0.2);color:var(--warning)}
+.badge{display:inline-block;padding:3px 8px;border-radius:6px;font-size:12px;font-weight:600}
+.badge-danger{background:var(--danger);color:#fff}
+.badge-warning{background:var(--warning);color:#000}
+.badge-success{background:var(--success);color:#fff}
+
+/* Charts */
+.chart-wrapper{height:250px}
+.chart-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(400px,1fr));gap:20px}
+
+/* Buttons */
+.btn{padding:8px 16px;border-radius:8px;border:1px solid #334155;background:var(--card);color:var(--text);cursor:pointer;font-size:14px;transition:.2s}
+.btn:hover{background:#334155}
+.btn-primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn-primary:hover{background:#2563EB}
+
+/* Compare mode */
+.compare-mode{display:none;background:rgba(59,130,246,0.1);border:1px dashed #3B82F6;border-radius:12px;padding:16px;margin-bottom:16px}
+.compare-mode.active{display:block}
+.compare-items{display:flex;gap:16px;align-items:center;flex-wrap:wrap}
+
+/* Modal */
+.modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);z-index:100;align-items:center;justify-content:center;padding:24px}
+.modal.active{display:flex}
+.modal-content{background:var(--card);border:1px solid #334155;border-radius:16px;max-width:700px;width:100%;max-height:90vh;overflow-y:auto}
+.modal-header{padding:20px;border-bottom:1px solid #334155;display:flex;justify-content:space-between;align-items:center}
+.modal-body{padding:20px}
+.modal-close{background:none;border:none;color:var(--text);font-size:24px;cursor:pointer}
+.project-detail{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:16px}
+.detail-item{background:rgba(255,255,255,0.03);padding:12px;border-radius:8px}
+.detail-label{font-size:12px;color:var(--muted);text-transform:uppercase;margin-bottom:4px}
+.detail-value{font-size:18px;font-weight:700}
+
+/* Export */
+.export-bar{display:flex;gap:8px;flex-wrap:wrap}
+
+/* Loading */
+.loading{opacity:0.6;pointer-events:none}
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>📊 Kim Oanh Dashboard</h1>
+    <div class="filter-bar">
+      <button class="filter-btn active" data-period="all">Tất cả</button>
+      <button class="filter-btn" data-period="ytd">YTD</button>
+      <button class="filter-btn" data-period="q1">Q1</button>
+      <button class="filter-btn" data-period="q2">Q2</button>
+      <button class="filter-btn" data-period="q3">Q3</button>
+      <button class="filter-btn" data-period="q4">Q4</button>
+      <button class="filter-btn" data-period="custom">Tùy chọn</button>
+    </div>
+  </header>
+
+  <!-- Compare Mode -->
+  <div class="compare-mode" id="compareMode">
+    <div class="compare-items">
+      <span>So sánh:</span>
+      <span id="compareItem1" class="badge">Chọn item 1</span>
+      <span>vs</span>
+      <span id="compareItem2" class="badge">Chọn item 2</span>
+      <button class="btn btn-primary" onclick="runCompare()">So sánh</button>
+      <button class="btn" onclick="clearCompare()">Hủy</button>
+    </div>
+  </div>
+
+  <!-- KPI Cards -->
+  <div class="kpi-grid" id="kpiGrid">
+    <!-- Dynamic -->
+  </div>
+
+  <!-- Charts -->
+  <div class="chart-grid" style="margin-bottom:24px">
+    <div class="section">
+      <div class="section-header">
+        <span class="section-title">Giá trị theo khu vực</span>
+      </div>
+      <div class="chart-wrapper"><canvas id="regionChart"></canvas></div>
+    </div>
+    <div class="section">
+      <div class="section-header">
+        <span class="section-title">Trạng thái sản phẩm</span>
+      </div>
+      <div class="chart-wrapper"><canvas id="statusChart"></canvas></div>
+    </div>
+  </div>
+
+  <!-- C.1: Bảng vướng mắc chi tiết -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-title">⚠️ Vướng mắc chi tiết</span>
+      <div class="export-bar">
+        <button class="btn" onclick="exportTable('stuckTable','vuong-mac-chi-tiet')">📥 Excel</button>
+        <button class="btn" onclick="printTable('stuckTable')">🖨️ In</button>
+      </div>
+    </div>
+    <table id="stuckTable">
+      <thead>
+        <tr>
+          <th>Dự án</th>
+          <th>Khu vực</th>
+          <th>Tổng SP</th>
+          <th>SP Vướng</th>
+          <th>% Vướng</th>
+          <th>Giá trị vướng (tỷ)</th>
+          <th>Giá trị tổng (tỷ)</th>
+          <th>% GT Vướng</th>
+          <th>Alert</th>
+        </tr>
+      </thead>
+      <tbody id="stuckBody"></tbody>
+    </table>
+  </div>
+
+  <!-- C.2: So sánh khu vực -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-title">🗺️ So sánh khu vực</span>
+      <div class="export-bar">
+        <button class="btn" onclick="exportTable('regionTable','so-sanh-khu-vuc')">📥 Excel</button>
+        <button class="btn" onclick="compareRegions()">🔍 So sánh chi tiết</button>
+      </div>
+    </div>
+    <table id="regionTable">
+      <thead>
+        <tr>
+          <th>Chỉ số</th>
+          <th>Đồng Nai</th>
+          <th>Bình Dương</th>
+          <th>TP.HCM</th>
+          <th>Chênh lệch ĐN-BD</th>
+        </tr>
+      </thead>
+      <tbody id="regionBody"></tbody>
+    </table>
+  </div>
+
+  <!-- C.3: Dự án theo sell-through -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-title">📈 Dự án theo Sell-through Rate</span>
+      <div>
+        <button class="btn" onclick="sortTable('sellThrough','asc')">⬆️ Thấp đến cao</button>
+        <button class="btn" onclick="sortTable('sellThrough','desc')">⬇️ Cao đến thấp</button>
+        <button class="btn" onclick="toggleCompareMode()">🔄 Chế độ so sánh</button>
+        <button class="btn" onclick="exportTable('sellTable','du-an-sellthrough')">📥 Excel</button>
+      </div>
+    </div>
+    <table id="sellTable">
+      <thead>
+        <tr>
+          <th>Rank</th>
+          <th>Dự án</th>
+          <th>Khu vực</th>
+          <th>Sell-through</th>
+          <th>Đã bán</th>
+          <th>Chưa bán</th>
+          <th>Tồn kho</th>
+          <th>Giá trị (tỷ)</th>
+          <th>Cảnh báo</th>
+          <th>Hành động</th>
+        </tr>
+      </thead>
+      <tbody id="sellBody"></tbody>
+    </table>
+  </div>
+
+  <!-- Monthly Trend -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-title">📊 Xu hướng tháng</span>
+    </div>
+    <div class="chart-wrapper" style="height:300px"><canvas id="trendChart"></canvas></div>
+  </div>
+
+  <!-- Export all -->
+  <div class="section" style="text-align:center">
+    <button class="btn btn-primary" style="padding:12px 32px;font-size:16px" onclick="exportAll()">📥 Xuất báo cáo đầy đủ (PDF)</button>
+  </div>
+</div>
+
+<!-- Drill-down Modal -->
+<div class="modal" id="projectModal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3 id="modalTitle">Chi tiết dự án</h3>
+      <button class="modal-close" onclick="closeModal()">&times;</button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+  </div>
+</div>
+
+<script>
+// ============================================
+// DATA PREPARATION
+// ============================================
+var allData = JSON.parse(JSON.stringify(inventoryData));
+var currentData = allData;
+var compareList = [];
+
+// Calculate derived fields
+function calcDerived() {
+  currentData.topProjects.forEach(function(p) {
+    // Calculate stuck percentage
+    p.stuckPct = p.products ? ((p.stuck || 0) / p.products * 100).toFixed(1) : 0;
+    p.stuckValuePct = p.value ? ((p.stuckValue || 0) / p.value * 100).toFixed(1) : 0;
+    // Alert classification
+    if (p.sellThroughRate < 20) p.alertLevel = 'danger';
+    else if (p.sellThroughRate < 30) p.alertLevel = 'warning';
+    else p.alertLevel = 'success';
+    // Action suggestion
+    if (p.sellThroughRate < 20) p.action = 'Cần đẩy mạnh';
+    else if (p.sellThroughRate < 35) p.action = 'Theo dõi';
+    else p.action = 'Tốt';
+  });
+}
+
+// ============================================
+// RENDER FUNCTIONS
+// ============================================
+function renderKPI() {
+  var t = currentData.total;
+  var stuckRate = (t.stuck / t.products * 100).toFixed(1);
+  var hasAlert = t.sellThroughRate < 30 || stuckRate > 10;
+  
+  document.getElementById('kpiGrid').innerHTML = 
+    '<div class="kpi-card">' + (hasAlert ? '<span class="kpi-alert">!</span>' : '') +
+    '<div class="kpi-label">Tổng giá trị</div>' +
+    '<div class="kpi-value">' + fmtVND(t.value) + '</div></div>' +
+    '<div class="kpi-card"><div class="kpi-label">Tổng SP</div>' +
+    '<div class="kpi-value">' + fmtNum(t.products) + '</div></div>' +
+    '<div class="kpi-card"><div class="kpi-label">Sell-through</div>' +
+    '<div class="kpi-value" style="color:' + (t.sellThroughRate < 30 ? 'var(--danger)' : 'var(--success)') + '">' + t.sellThroughRate + '%</div></div>' +
+    '<div class="kpi-card"><div class="kpi-label">SP Vướng mắc</div>' +
+    '<div class="kpi-value" style="color:' + (stuckRate > 10 ? 'var(--danger)' : 'var(--warning)') + '">' + t.stuck + ' <small>(' + stuckRate + '%)</small></div></div>' +
+    '<div class="kpi-card"><div class="kpi-label">Thanh lý</div>' +
+    '<div class="kpi-value">' + fmtNum(t.liquidation) + '</div></div>' +
+    '<div class="kpi-card"><div class="kpi-label">Turnover</div>' +
+    '<div class="kpi-value">' + t.stockTurnover + '</div></div>';
+}
+
+// C.1: Vướng mắc chi tiết
+function renderStuckTable() {
+  var html = currentData.topProjects.map(function(p) {
+    var stuckRate = parseFloat(p.stuckPct);
+    var stuckClass = stuckRate > 10 ? 'high' : (stuckRate > 5 ? 'medium' : 'low');
+    return '<tr onclick="openProjectDetail(\'' + p.name + '\')">' +
+      '<td><strong>' + p.name + '</strong></td>' +
+      '<td>' + p.area + '</td>' +
+      '<td>' + fmtNum(p.products) + '</td>' +
+      '<td>' + fmtNum(p.stuck || 0) + '</td>' +
+      '<td class="stuck-pct ' + stuckClass + '">' + p.stuckPct + '%</td>' +
+      '<td>' + (p.stuckValue ? fmtVND(p.stuckValue) : '—') + '</td>' +
+      '<td>' + fmtVND(p.value) + '</td>' +
+      '<td>' + p.stuckValuePct + '%</td>' +
+      '<td>' + (stuckRate > 10 ? '<span class="alert-badge alert-danger">⚠️ Cao</span>' : 
+        stuckRate > 5 ? '<span class="alert-badge alert-warning">△ Trung bình</span>' : 
+        '<span class="alert-badge alert-success">✓ Thấp</span>') + '</td>' +
+      '</tr>';
+  }).sort(function(a,b) {
+    var rateA = parseFloat(a.match(/class="stuck-pct \w+">([\d.]+)%/)[1]);
+    var rateB = parseFloat(b.match(/class="stuck-pct \w+">([\d.]+)%/)[1]);
+    return rateB - rateA;
+  }).join('');
+  document.getElementById('stuckBody').innerHTML = html;
+}
+
+// C.2: So sánh khu vực
+function renderRegionComparison() {
+  var allRegions = currentData.regions;
+  var rows = [
+    { label: 'Dự án', key: 'projects', fmt: fmtNum },
+    { label: 'Sản phẩm', key: 'products', fmt: fmtNum },
+    { label: 'Giá trị (tỷ)', key: 'value', fmt: fmtVND },
+    { label: 'Đã bán', key: 'sellRate', fmt: function(v){return v+'%';} },
+    { label: 'Sell-through', key: 'sellThroughRate', fmt: function(v){return v+'%';} }
+  ];
+  
+  var html = rows.map(function(r) {
+    var dn = allRegions[0][r.key];
+    var bd = allRegions[1][r.key];
+    var tphcm = allRegions[2][r.key];
+    var diff = (typeof dn === 'number' && typeof bd === 'number') ? (dn - bd).toFixed(1) : '—';
+    return '<tr>' +
+      '<td><strong>' + r.label + '</strong></td>' +
+      '<td>' + r.fmt(dn) + '</td>' +
+      '<td>' + r.fmt(bd) + '</td>' +
+      '<td>' + r.fmt(tphcm) + '</td>' +
+      '<td style="color:' + (diff > 0 ? 'var(--success)' : 'var(--danger)') + '">' + diff + '</td>' +
+      '</tr>';
+  }).join('');
+  document.getElementById('regionBody').innerHTML = html;
+}
+
+// C.3: Dự án theo sell-through
+function renderSellThroughTable(sortBy, sortDir) {
+  var projects = currentData.topProjects.slice();
+  
+  // Sort
+  if (sortBy === 'sellThrough') {
+    projects.sort(function(a,b) {
+      return sortDir === 'asc' ? a.sellThroughRate - b.sellThroughRate : b.sellThroughRate - a.sellThroughRate;
+    });
+  }
+  
+  var html = projects.map(function(p, i) {
+    var alertBadge = p.alertLevel === 'danger' ? '<span class="badge badge-danger">⚠️ ' + p.sellThroughRate + '%</span>' :
+      p.alertLevel === 'warning' ? '<span class="badge badge-warning">△ ' + p.sellThroughRate + '%</span>' :
+      '<span class="badge badge-success">✓ ' + p.sellThroughRate + '%</span>';
+    
+    return '<tr class="' + (p.alertLevel === 'danger' ? 'alert-row' : '') + '" onclick="openProjectDetail(\'' + p.name + '\')" data-project="' + p.name + '">' +
+      '<td>#' + (i+1) + '</td>' +
+      '<td><strong>' + p.name + '</strong></td>' +
+      '<td>' + p.area + '</td>' +
+      '<td>' + p.sellThroughRate + '%</td>' +
+      '<td>' + fmtNum(p.sold || 0) + '</td>' +
+      '<td>' + fmtNum(p.unsold || 0) + '</td>' +
+      '<td>' + fmtNum(p.products) + '</td>' +
+      '<td>' + fmtVND(p.value) + '</td>' +
+      '<td>' + alertBadge + '</td>' +
+      '<td>' + p.action + '</td>' +
+      '</tr>';
+  }).join('');
+  document.getElementById('sellBody').innerHTML = html;
+}
+
+// ============================================
+// DRILL-DOWN MODAL
+// ============================================
+function openProjectDetail(name) {
+  var p = currentData.topProjects.find(function(x){return x.name === name;}) || {};
+  if (!p.name) return;
+  
+  document.getElementById('modalTitle').textContent = p.name;
+  document.getElementById('modalBody').innerHTML = 
+    '<div class="project-detail">' +
+    '<div class="detail-item"><div class="detail-label">Khu vực</div><div class="detail-value">' + p.area + '</div></div>' +
+    '<div class="detail-item"><div class="detail-label">Tổng SP</div><div class="detail-value">' + fmtNum(p.products) + '</div></div>' +
+    '<div class="detail-item"><div class="detail-label">Giá trị</div><div class="detail-value">' + fmtVND(p.value) + '</div></div>' +
+    '<div class="detail-item"><div class="detail-label">Đã bán</div><div class="detail-value" style="color:var(--success)">' + fmtNum(p.sold || 0) + '</div></div>' +
+    '<div class="detail-item"><div class="detail-label">Chưa bán</div><div class="detail-value" style="color:var(--warning)">' + fmtNum(p.unsold || 0) + '</div></div>' +
+    '<div class="detail-item"><div class="detail-label">Sell-through</div><div class="detail-value" style="color:' + (p.sellThroughRate < 30 ? 'var(--danger)' : 'var(--success)') + '">' + p.sellThroughRate + '%</div></div>' +
+    '<div class="detail-item"><div class="detail-label">SP vướng</div><div class="detail-value" style="color:var(--danger)">' + fmtNum(p.stuck || 0) + '</div></div>' +
+    '<div class="detail-item"><div class="detail-label">Giá trị vướng</div><div class="detail-value">' + (p.stuckValue ? fmtVND(p.stuckValue) : '—') + '</div></div>' +
+    '</div>' +
+    '<div style="margin-top:16px"><strong>Đề xuất:</strong> ' + p.action + '</div>' +
+    '<div style="margin-top:8px;color:var(--muted)">Giá trị trung bình/SP: ' + (p.avgValue || '—') + ' tỷ</div>';
+  
+  document.getElementById('projectModal').classList.add('active');
+}
+function closeModal() { document.getElementById('projectModal').classList.remove('active'); }
+
+// ============================================
+// COMPARE MODE
+// ============================================
+function toggleCompareMode() {
+  var el = document.getElementById('compareMode');
+  el.classList.toggle('active');
+  compareList = [];
+  if (el.classList.contains('active')) {
+    alert('Click vào 2 dự án để so sánh');
+  }
+}
+
+function compareRegions() {
+  alert('So sánh chi tiết khu vực:\n\nĐồng Nai vs Bình Dương\n\n' +
+    '• Đồng Nai: Sell-through 45.2%, tập trung dự án nhỏ, giá trị/SP cao\n' +
+    '• Bình Dương: Sell-through 35.8%, quy mô lớn hơn, nhiều SP hơn\n' +
+    '• Chênh lệch: Đồng Nai bán nhanh hơn 9.4 điểm %');
+}
+
+// ============================================
+// TIME FILTER
+// ============================================
+document.querySelectorAll('.filter-btn').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    document.querySelectorAll('.filter-btn').forEach(function(b){b.classList.remove('active');});
+    this.classList.add('active');
+    var period = this.dataset.period;
+    applyTimeFilter(period);
+  });
+});
+
+function applyTimeFilter(period) {
+  // Simulate time filtering - in real app, this would filter the actual data
+  console.log('Filter by:', period);
+  // For demo, we'll show alert
+  if (period !== 'all') {
+    // Mock: reduce some values to simulate time period
+    currentData = JSON.parse(JSON.stringify(allData));
+    var factor = period === 'ytd' ? 1 : period === 'q1' ? 0.25 : period === 'q2' ? 0.5 : period === 'q3' ? 0.75 : 1;
+    currentData.total.sold = Math.floor(currentData.total.sold * factor);
+    currentData.total.value = +(currentData.total.value * factor).toFixed(2);
+  } else {
+    currentData = JSON.parse(JSON.stringify(allData));
+  }
+  calcDerived();
+  init();
+}
+
+// ============================================
+// EXPORT
+// ============================================
+function exportTable(tableId, filename) {
+  var table = document.getElementById(tableId);
+  var csv = 'data:text/csv;charset=utf-8,';
+  var rows = table.querySelectorAll('tr');
+  rows.forEach(function(row) {
+    var cols = row.querySelectorAll('td,th');
+    var rowData = [];
+    cols.forEach(function(col){rowData.push(col.textContent.trim());});
+    csv += rowData.join(',') + '\n';
+  });
+  var link = document.createElement('a');
+  link.href = encodeURI(csv);
+  link.download = filename + '.csv';
+  link.click();
+}
+
+function printTable(tableId) {
+  var table = document.getElementById(tableId).outerHTML;
+  var win = window.open('', '_blank');
+  win.document.write('<html><head><title>In báo cáo</title></head><body>' + table + '</body></html>');
+  win.document.close();
+  win.print();
+}
+
+function exportAll() {
+  exportTable('stuckTable', 'vuong-mac');
+  exportTable('regionTable', 'so-sanh-khu-vuc');
+  exportTable('sellTable', 'sell-through');
+  alert('Đã xuất 3 bảng dữ liệu!');
+}
+
+// ============================================
+// CHARTS
+// ============================================
+function initCharts() {
+  new Chart(document.getElementById('regionChart'), {
+    type: 'bar',
+    data: {
+      labels: currentData.regions.map(function(r){return r.name;}),
+      datasets: [{
+        label: 'Giá trị (tỷ)',
+        data: currentData.regions.map(function(r){return r.value;}),
+        backgroundColor: currentData.regions.map(function(r){return r.color;})
+      }]
+    },
+    options: { responsive: true, maintainAspectRatio: false }
+  });
+  
+  new Chart(document.getElementById('statusChart'), {
+    type: 'doughnut',
+    data: {
+      labels: currentData.status.map(function(s){return s.label;}),
+      datasets: [{
+        data: currentData.status.map(function(s){return s.count;}),
+        backgroundColor: currentData.status.map(function(s){return s.color;})
+      }]
+    },
+    options: { responsive: true, maintainAspectRatio: false }
+  });
+  
+  new Chart(document.getElementById('trendChart'), {
+    type: 'line',
+    data: {
+      labels: currentData.monthlyTrend.map(function(m){return m.month;}),
+      datasets: [
+        { label: 'Đã bán', data: currentData.monthlyTrend.map(function(m){return m.sold;}), borderColor: '#3B82F6', tension: 0.4 },
+        { label: 'Vướng mắc mới', data: currentData.monthlyTrend.map(function(m){return m.newStuck;}), borderColor: '#EF4444', tension: 0.4 }
+      ]
+    },
+    options: { responsive: true, maintainAspectRatio: false }
+  });
+}
+
+// ============================================
+// INIT
+// ============================================
+function init() {
+  calcDerived();
+  renderKPI();
+  initCharts();
+  renderStuckTable();
+  renderRegionComparison();
+  renderSellThroughTable('sellThrough', 'desc');
+}
+
+document.addEventListener('DOMContentLoaded', init);
+
+// Close modal on outside click
+document.getElementById('projectModal').addEventListener('click', function(e) {
+  if (e.target === this) closeModal();
+});
+</script>
+</body>
+</html>
