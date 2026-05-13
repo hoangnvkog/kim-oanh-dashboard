@@ -29,16 +29,16 @@ var inventoryData = {
     { label: "Tồn kho", count: 5408, percentage: 83.4, color: "#64748B" }
   ],
   topProjects: [
-    { name: "TAM PHƯỚC", area: "Đồng Nai", value: 18180.79, percentage: 35.6, products: 340, color: "#3B82F6" },
-    { name: "CENTURY", area: "Bình Dương", value: 11952.76, percentage: 23.4, products: 2143, color: "#10B981" },
-    { name: "RICHLAND - TL2", area: "Bình Dương", value: 5653.21, percentage: 11.1, products: 767, color: "#F59E0B" },
-    { name: "LEGACY BLOCK B", area: "Bình Dương", value: 3786.23, percentage: 7.4, products: 883, color: "#EF4444" },
-    { name: "LEGACY BLOCK A", area: "Bình Dương", value: 2656.33, percentage: 5.2, products: 952, color: "#8B5CF6" },
-    { name: "BÀU XÉO", area: "Đồng Nai", value: 2159.12, percentage: 4.2, products: 254, color: "#06B6D4" },
-    { name: "NOXH CẦU ĐÒ-KD", area: "Bình Dương", value: 1440.18, percentage: 2.8, products: 292, color: "#84CC16" },
-    { name: "PHÚ HỘI", area: "Đồng Nai", value: 1240.88, percentage: 2.4, products: 159, color: "#F97316" },
-    { name: "GOLDEN B", area: "Bình Dương", value: 982.97, percentage: 1.9, products: 157, color: "#EC4899" },
-    { name: "PHƯỚC TÂN", area: "Đồng Nai", value: 975.24, percentage: 1.9, products: 132, color: "#6366F1" }
+    { name: "TAM PHƯỚC", area: "Đồng Nai", value: 18180.79, percentage: 35.6, products: 340, sellThroughRate: 45.2, color: "#3B82F6" },
+    { name: "CENTURY", area: "Bình Dương", value: 11952.76, percentage: 23.4, products: 2143, sellThroughRate: 35.8, color: "#10B981" },
+    { name: "RICHLAND - TL2", area: "Bình Dương", value: 5653.21, percentage: 11.1, products: 767, sellThroughRate: 35.8, color: "#F59E0B" },
+    { name: "LEGACY BLOCK B", area: "Bình Dương", value: 3786.23, percentage: 7.4, products: 883, sellThroughRate: 35.8, color: "#EF4444" },
+    { name: "LEGACY BLOCK A", area: "Bình Dương", value: 2656.33, percentage: 5.2, products: 952, sellThroughRate: 35.8, color: "#8B5CF6" },
+    { name: "BÀU XÉO", area: "Đồng Nai", value: 2159.12, percentage: 4.2, products: 254, sellThroughRate: 45.2, color: "#06B6D4" },
+    { name: "NOXH CẦU ĐÒ-KD", area: "Bình Dương", value: 1440.18, percentage: 2.8, products: 292, sellThroughRate: 35.8, color: "#84CC16" },
+    { name: "PHÚ HỘI", area: "Đồng Nai", value: 1240.88, percentage: 2.4, products: 159, sellThroughRate: 45.2, color: "#F97316" },
+    { name: "GOLDEN B", area: "Bình Dương", value: 982.97, percentage: 1.9, products: 157, sellThroughRate: 35.8, color: "#EC4899" },
+    { name: "PHƯỚC TÂN", area: "Đồng Nai", value: 975.24, percentage: 1.9, products: 132, sellThroughRate: 45.2, color: "#6366F1" }
   ],
   stuckProjects: [
     { name: "BỬU HÒA", area: "Đồng Nai", stuck: 14 },
