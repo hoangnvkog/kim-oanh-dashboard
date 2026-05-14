@@ -281,16 +281,44 @@
         }
         
         /* Responsive */
+        /* ========== MOBILE RESPONSIVE ========== */
         @media (max-width: 768px) {
-            .charts-grid { grid-template-columns: 1fr; }
-            .kpi-grid { grid-template-columns: 1fr 1fr; }
+            .container { padding: 16px; }
+            .header { padding: 20px; border-radius: 12px; }
+            .header h1 { font-size: 20px; }
+            .header p { font-size: 13px; }
+            .header-badge { font-size: 11px; margin-top: 8px; }
+            .charts-grid { grid-template-columns: 1fr; gap: 16px; }
+            .chart-card { padding: 16px; }
+            .chart-wrapper { height: 220px; }
+            .chart-wrapper.doughnut { height: 200px; max-width: 100%; }
+            .kpi-grid { grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+            .kpi-card { padding: 16px; }
+            .kpi-label { font-size: 11px; }
+            .kpi-value { font-size: 22px; }
+            .kpi-sub { font-size: 11px; }
+            .table-card { padding: 16px; }
             .table-header { flex-direction: column; align-items: flex-start; }
-            .search-box { width: 100%; }
-            .header h1 { font-size: 22px; }
+            .table-title { font-size: 14px; }
+            .search-box { width: 100%; font-size: 14px; padding: 10px 12px; }
+            .data-table { font-size: 12px; min-width: 700px; }
+            .data-table th, .data-table td { padding: 8px 10px; }
+            .pagination { flex-direction: column; align-items: flex-start; gap: 8px; }
+            .footer { padding: 16px; font-size: 12px; }
         }
         @media (max-width: 480px) {
-            .kpi-grid { grid-template-columns: 1fr; }
+            body { font-size: 14px; }
             .container { padding: 12px; }
+            .kpi-grid { grid-template-columns: 1fr; gap: 10px; }
+            .kpi-card { padding: 14px; }
+            .kpi-value { font-size: 20px; }
+            .kpi-sub { font-size: 10px; }
+            .charts-grid { gap: 12px; }
+            .chart-wrapper { height: 200px; }
+            .chart-wrapper.doughnut { height: 180px; }
+            .header { padding: 16px; }
+            .header h1 { font-size: 18px; }
+            .data-table th, .data-table td { padding: 6px 8px; font-size: 11px; }
         }
     </style>
 </head>
