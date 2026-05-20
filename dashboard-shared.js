@@ -86,15 +86,22 @@ function createModal(id, options) {
 }
 
 function openModal(id, title, content) {
-  var modal = document.getElementById(id) || createModal(id, {title: title || 'Chi tiết'});
+  var modal = document.getElementById(id);
+  if (!modal) {
+    modal = createModal(id, { title: title || 'Chi tiết' });
+  }
   document.getElementById(id + '-title').textContent = title || 'Chi tiết';
   document.getElementById(id + '-body').innerHTML = content;
+  modal.style.display = 'flex';
   modal.classList.add('active');
 }
 
 function closeModal(id) {
   var modal = document.getElementById(id);
-  if (modal) modal.classList.remove('active');
+  if (modal) {
+    modal.style.display = 'none';
+    modal.classList.remove('active');
+  }
 }
 
 // ================== PROJECT DETAIL VIEW ==================
